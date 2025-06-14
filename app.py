@@ -44,6 +44,20 @@ class User(Base):  # <------------------------------------------ User Model
     created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow, nullable=False)
 
     roles: Mapped[List["Role"]] = relationship("Role", secondary=user_roles, back_populates="users")
+    listings: Mapped[List["Listing"]] = relationship("Listing", back_populates="owner")
+
+class Listing(Base):  # <------------------------------------------ Listing Model
+    __tablename__ = "listings"
+
+    listing_id: Mapped[int] = mapped_column(primary_key=True)
+    title: Mapped[str] = mapped_column(String(100), nullable=False)
+    description: Mapped[str] = mapped_column(Text)
+    price: Mapped[int] = mapped_column(nullable=False)
+    created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow, nullable=False)
+
+    owner_id: Mapped[int] = mapped_column(ForeignKey("users.user_id"), nullable=False)
+    owner: Mapped["User"] = relationship("User", back_populates="listings")
+
 
 
 with app.app_context():
