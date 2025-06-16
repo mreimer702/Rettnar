@@ -47,6 +47,7 @@ class User(Base):  # <------------------------------------------ User Model
     listings: Mapped[List["Listing"]] = relationship("Listing", back_populates="owner")
     sent_messages: Mapped[List["Message"]] = relationship("Message", back_populates="sender", foreign_keys="[Message.sender_id]")
     received_messages: Mapped[List["Message"]] = relationship("Message", back_populates="receiver", foreign_keys="[Message.receiver_id]")
+    payments: Mapped[List["Payment"]] = relationship("Payment", back_populates="user")
 
 class Listing(Base):  # <------------------------------------------ Listing Model
     __tablename__ = "listings"
@@ -59,6 +60,7 @@ class Listing(Base):  # <------------------------------------------ Listing Mode
 
     owner_id: Mapped[int] = mapped_column(ForeignKey("users.user_id"), nullable=False)
     owner: Mapped["User"] = relationship("User", back_populates="listings")
+    payments: Mapped[List["Payment"]] = relationship("Payment", back_populates="listing")
 
 class Message(Base):  # <------------------------------------------ Message Model
     __tablename__ = "messages"
@@ -73,6 +75,18 @@ class Message(Base):  # <------------------------------------------ Message Mode
     sender: Mapped["User"] = relationship("User", foreign_keys=[sender_id], back_populates="sent_messages")
     receiver: Mapped["User"] = relationship("User", foreign_keys=[receiver_id], back_populates="received_messages")
 
+class Payment(Base):  # <------------------------------------------ Payment Model
+    __tablename__ = "payment"
+
+    payment_id: Mapped[int] = mapped_column(primary_key=True)
+    amount: Mapped[float] = mapped_column(nullable=False)
+    paid_at: Mapped[datetime] = mapped_column(default=datetime.utcnow, nullable=False)
+
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.user_id"), nullable=False)
+    listing_id: Mapped[int] = mapped_column(ForeignKey("listings.listing_id"), nullable=False)
+
+    user: Mapped["User"] = relationship("User", back_populates="payments")
+    listing: Mapped["Listing"] = relationship("Listing", back_populates="payments")
 
 
 with app.app_context():
