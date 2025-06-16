@@ -45,6 +45,8 @@ class User(Base):  # <------------------------------------------ User Model
 
     roles: Mapped[List["Role"]] = relationship("Role", secondary=user_roles, back_populates="users")
     listings: Mapped[List["Listing"]] = relationship("Listing", back_populates="owner")
+    sent_messages: Mapped[List["Message"]] = relationship("Message", back_populates="sender", foreign_keys="[Message.sender_id]")
+    received_messages: Mapped[List["Message"]] = relationship("Message", back_populates="receiver", foreign_keys="[Message.receiver_id]")
 
 class Listing(Base):  # <------------------------------------------ Listing Model
     __tablename__ = "listings"
@@ -57,6 +59,19 @@ class Listing(Base):  # <------------------------------------------ Listing Mode
 
     owner_id: Mapped[int] = mapped_column(ForeignKey("users.user_id"), nullable=False)
     owner: Mapped["User"] = relationship("User", back_populates="listings")
+
+class Message(Base):  # <------------------------------------------ Message Model
+    __tablename__ = "messages"
+
+    message_id: Mapped[int] = mapped_column(primary_key=True)
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+    sent_at: Mapped[datetime] = mapped_column(default=datetime.utcnow, nullable=False)
+
+    sender_id: Mapped[int] = mapped_column(ForeignKey("users.user_id"), nullable=False)
+    receiver_id: Mapped[int] = mapped_column(ForeignKey("users.user_id"), nullable=False)
+
+    sender: Mapped["User"] = relationship("User", foreign_keys=[sender_id], back_populates="sent_messages")
+    receiver: Mapped["User"] = relationship("User", foreign_keys=[receiver_id], back_populates="received_messages")
 
 
 
