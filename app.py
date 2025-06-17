@@ -21,13 +21,21 @@ ma = Marshmallow()
 db.init_app(app)
 ma.init_app(app)
 
-user_roles = Table(  # <------------------------------------------ Role + user_roles association model
+user_roles = Table(  # <------------------------------------------ user_roles association model
     'user_roles',
     Base.metadata,
     Column('user_id', ForeignKey('users.user_id'), primary_key=True),
     Column('role_id', ForeignKey('roles.role_id'), primary_key=True)
 )
 
+favorites = Table(  # <------------------------------------------ favorites association model
+    'favorites',
+    Base.metadata,
+    Column('user_id', ForeignKey('users.user_id'), primary_key=True),
+    Column('listing_id', ForeignKey('listings.listing_id'), primary_key=True)
+)
+
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ASSOCIATION TABLES ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 class Role(Base):  # <------------------------------------------ Role Model
     __tablename__ = "roles"
 
@@ -50,6 +58,8 @@ class User(Base):  # <------------------------------------------ User Model
     received_messages: Mapped[List["Message"]] = relationship("Message", back_populates="receiver", foreign_keys="[Message.receiver_id]")
     payments: Mapped[List["Payment"]] = relationship("Payment", back_populates="user")
     bookings: Mapped[List["Booking"]] = relationship("Booking", back_populates="user")
+    reviews: Mapped[List["Review"]] = relationship("Review", back_populates="user")
+    favorites: Mapped[List["Listing"]] = relationship("Listing", secondary=favorites, back_populates="favorited_by")
 
 class Listing(Base):  # <------------------------------------------ Listing Model
     __tablename__ = "listings"
@@ -64,6 +74,8 @@ class Listing(Base):  # <------------------------------------------ Listing Mode
     owner: Mapped["User"] = relationship("User", back_populates="listings")
     payments: Mapped[List["Payment"]] = relationship("Payment", back_populates="listing")
     bookings: Mapped[List["Booking"]] = relationship("Booking", back_populates="listing")
+    reviews: Mapped[List["Review"]] = relationship("Review", back_populates="listing")
+    favorited_by: Mapped[List["User"]] = relationship("User", secondary=favorites, back_populates="favorites")
 
 class Message(Base):  # <------------------------------------------ Message Model
     __tablename__ = "messages"
@@ -109,6 +121,19 @@ class Booking(Base):  # <------------------------------------------ Booking Mode
 
     user: Mapped["User"] = relationship("User", back_populates="bookings")
     listing: Mapped["Listing"] = relationship("Listing", back_populates="bookings")
+
+class Review(Base):  # <------------------------------------------ Review Model
+    __tablename__ = "reviews"
+
+    review_id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey('users.user_id'), nullable=False)
+    listing_id: Mapped[int] = mapped_column(ForeignKey('listings.listing_id'), nullable=False)
+    rating: Mapped[int] = mapped_column(Integer, nullable=False)
+    comment: Mapped[str] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow, nullable=False)
+
+    user: Mapped["User"] = relationship("User", back_populates="reviews")
+    listing: Mapped["Listing"] = relationship("Listing", back_populates="reviews")
 
 
 
