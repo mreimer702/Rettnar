@@ -76,6 +76,8 @@ class Listing(Base):  # <------------------------------------------ Listing Mode
     bookings: Mapped[List["Booking"]] = relationship("Booking", back_populates="listing")
     reviews: Mapped[List["Review"]] = relationship("Review", back_populates="listing")
     favorited_by: Mapped[List["User"]] = relationship("User", secondary=favorites, back_populates="favorites")
+    availability: Mapped[List["Availability"]] = relationship("Availability", back_populates="listing")
+    images: Mapped[List["Image"]] = relationship("Image", back_populates="listing")
 
 class Message(Base):  # <------------------------------------------ Message Model
     __tablename__ = "messages"
@@ -134,6 +136,27 @@ class Review(Base):  # <------------------------------------------ Review Model
 
     user: Mapped["User"] = relationship("User", back_populates="reviews")
     listing: Mapped["Listing"] = relationship("Listing", back_populates="reviews")
+
+class Availability(Base):  # <------------------------------------------ Availability Model
+    __tablename__ = "availability"
+
+    availability_id: Mapped[int] = mapped_column(primary_key=True)
+    listing_id: Mapped[int] = mapped_column(ForeignKey("listings.listing_id"), nullable=False)
+    start_date: Mapped[datetime] = mapped_column(nullable=False)
+    end_date: Mapped[datetime] = mapped_column(nullable=False)
+    is_available: Mapped[bool] = mapped_column(default=True, nullable=False)
+
+    listing: Mapped["Listing"] = relationship("Listing", back_populates="availability")
+
+class Image(Base):  # <------------------------------------------ Image Model
+    __tablename__ = "images"
+
+    image_id: Mapped[int] = mapped_column(primary_key=True)
+    listing_id: Mapped[int] = mapped_column(ForeignKey("listings.listing_id"), nullable=False)
+    url: Mapped[str] = mapped_column(Text, nullable=False)
+    is_primary: Mapped[bool] = mapped_column(default=False, nullable=False)
+
+    listing: Mapped["Listing"] = relationship("Listing", back_populates="images")
 
 
 
