@@ -69,8 +69,10 @@ class Listing(Base):  # <------------------------------------------ Listing Mode
     description: Mapped[str] = mapped_column(Text)
     price: Mapped[int] = mapped_column(nullable=False)
     created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow, nullable=False)
-
+    subcategory_id: Mapped[int] = mapped_column(ForeignKey("subcategories.subcategory_id"))
     owner_id: Mapped[int] = mapped_column(ForeignKey("users.user_id"), nullable=False)
+    location_id: Mapped[int] = mapped_column(ForeignKey("locations.location_id"))
+
     owner: Mapped["User"] = relationship("User", back_populates="listings")
     payments: Mapped[List["Payment"]] = relationship("Payment", back_populates="listing")
     bookings: Mapped[List["Booking"]] = relationship("Booking", back_populates="listing")
@@ -78,8 +80,9 @@ class Listing(Base):  # <------------------------------------------ Listing Mode
     favorited_by: Mapped[List["User"]] = relationship("User", secondary=favorites, back_populates="favorites")
     availability: Mapped[List["Availability"]] = relationship("Availability", back_populates="listing")
     images: Mapped[List["Image"]] = relationship("Image", back_populates="listing")
-    subcategory_id: Mapped[int] = mapped_column(ForeignKey("subcategories.subcategory_id"))
     subcategory: Mapped["Subcategory"] = relationship("Subcategory", back_populates="listings")
+    location: Mapped["Location"] = relationship("Location", back_populates="listing")
+    
 
 class Message(Base):  # <------------------------------------------ Message Model
     __tablename__ = "messages"
@@ -177,6 +180,18 @@ class Subcategory(Base):  # <------------------------------------------ Subcateg
 
     category: Mapped["Category"] = relationship("Category", back_populates="subcategories")
     listings: Mapped[List["Listing"]] = relationship("Listing", back_populates="subcategory")
+
+class Location(Base):  # <------------------------------------------ Location Model
+    __tablename__ = "locations"
+
+    location_id: Mapped[int] = mapped_column(primary_key=True)
+    address: Mapped[str] = mapped_column(String(100), nullable=False)
+    city: Mapped[str] = mapped_column(String(50), nullable=False)
+    state: Mapped[str] = mapped_column(String(50), nullable=False)
+    zip_code: Mapped[str] = mapped_column(String(20), nullable=False)
+    country: Mapped[str] = mapped_column(String(50), nullable=False)
+
+    listing: Mapped["Listing"] = relationship("Listing", back_populates="location", uselist=False)
 
 
 
