@@ -5,6 +5,7 @@ from sqlalchemy import ForeignKey, String, Integer, Enum, Text, DateTime, Table,
 from datetime import datetime
 from typing import List
 from flask_marshmallow import Marshmallow
+import enum
 from passwords import password
 
 # Instance
@@ -48,6 +49,7 @@ class User(Base):  # <------------------------------------------ User Model
     sent_messages: Mapped[List["Message"]] = relationship("Message", back_populates="sender", foreign_keys="[Message.sender_id]")
     received_messages: Mapped[List["Message"]] = relationship("Message", back_populates="receiver", foreign_keys="[Message.receiver_id]")
     payments: Mapped[List["Payment"]] = relationship("Payment", back_populates="user")
+    bookings: Mapped[List["Booking"]] = relationship("Booking", back_populates="user")
 
 class Listing(Base):  # <------------------------------------------ Listing Model
     __tablename__ = "listings"
@@ -61,6 +63,7 @@ class Listing(Base):  # <------------------------------------------ Listing Mode
     owner_id: Mapped[int] = mapped_column(ForeignKey("users.user_id"), nullable=False)
     owner: Mapped["User"] = relationship("User", back_populates="listings")
     payments: Mapped[List["Payment"]] = relationship("Payment", back_populates="listing")
+    bookings: Mapped[List["Booking"]] = relationship("Booking", back_populates="listing")
 
 class Message(Base):  # <------------------------------------------ Message Model
     __tablename__ = "messages"
@@ -87,6 +90,26 @@ class Payment(Base):  # <------------------------------------------ Payment Mode
 
     user: Mapped["User"] = relationship("User", back_populates="payments")
     listing: Mapped["Listing"] = relationship("Listing", back_populates="payments")
+
+class BookingStatusEnum(enum.Enum):  # <------------------------------------------ Booking Status Model
+    PENDING = "pending"
+    CONFIRMED = "confirmed"
+    CANCELLED = "cancelled"
+
+class Booking(Base):  # <------------------------------------------ Booking Model
+    __tablename__ = "bookings"
+
+    booking_id: Mapped[int] = mapped_column(primary_key=True)
+    start_date: Mapped[datetime] = mapped_column(nullable=False)
+    end_date: Mapped[datetime] = mapped_column(nullable=False)
+    status: Mapped[BookingStatusEnum] = mapped_column(Enum(BookingStatusEnum, native_enum=False), default=BookingStatusEnum.PENDING)
+
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.user_id"), nullable=False)
+    listing_id: Mapped[int] = mapped_column(ForeignKey("listings.listing_id"), nullable=False)
+
+    user: Mapped["User"] = relationship("User", back_populates="bookings")
+    listing: Mapped["Listing"] = relationship("Listing", back_populates="bookings")
+
 
 
 with app.app_context():
