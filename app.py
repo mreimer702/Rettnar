@@ -78,6 +78,8 @@ class Listing(Base):  # <------------------------------------------ Listing Mode
     favorited_by: Mapped[List["User"]] = relationship("User", secondary=favorites, back_populates="favorites")
     availability: Mapped[List["Availability"]] = relationship("Availability", back_populates="listing")
     images: Mapped[List["Image"]] = relationship("Image", back_populates="listing")
+    subcategory_id: Mapped[int] = mapped_column(ForeignKey("subcategories.subcategory_id"))
+    subcategory: Mapped["Subcategory"] = relationship("Subcategory", back_populates="listings")
 
 class Message(Base):  # <------------------------------------------ Message Model
     __tablename__ = "messages"
@@ -157,6 +159,24 @@ class Image(Base):  # <------------------------------------------ Image Model
     is_primary: Mapped[bool] = mapped_column(default=False, nullable=False)
 
     listing: Mapped["Listing"] = relationship("Listing", back_populates="images")
+
+class Category(Base):  # <------------------------------------------ Category Model
+    __tablename__ = "categories"
+
+    category_id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(100), nullable=False, unique=True)
+
+    subcategories: Mapped[List["Subcategory"]] = relationship("Subcategory", back_populates="category")
+
+class Subcategory(Base):  # <------------------------------------------ Subcategory Model
+    __tablename__ = "subcategories"
+
+    subcategory_id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(100), nullable=False)
+    category_id: Mapped[int] = mapped_column(ForeignKey("categories.category_id"), nullable=False)
+
+    category: Mapped["Category"] = relationship("Category", back_populates="subcategories")
+    listings: Mapped[List["Listing"]] = relationship("Listing", back_populates="subcategory")
 
 
 
