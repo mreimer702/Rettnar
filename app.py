@@ -35,6 +35,13 @@ favorites = Table(  # <------------------------------------------ favorites asso
     Column('listing_id', ForeignKey('listings.listing_id'), primary_key=True)
 )
 
+listing_amenities = Table(  # <------------------------------------------ listing amenities association model
+    "listing_amenities",
+    Base.metadata,
+    Column('listing_id', ForeignKey('listings.listing_id'), primary_key=True),
+    Column('amenity_id', ForeignKey('amenities.amenity_id'), primary_key=True)
+)
+
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ASSOCIATION TABLES ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 class Role(Base):  # <------------------------------------------ Role Model
     __tablename__ = "roles"
@@ -87,6 +94,8 @@ class Listing(Base):  # <------------------------------------------ Listing Mode
     subcategory: Mapped["Subcategory"] = relationship("Subcategory", back_populates="listings")
     location: Mapped["Location"] = relationship("Location", back_populates="listing")
     deliveries: Mapped[List["Delivery"]] = relationship("Delivery", back_populates="listing")
+    amenities: Mapped[List["Amenity"]] = relationship("Amenity", secondary=listing_amenities, back_populates="listings")
+    features: Mapped[List["ListingFeature"]] = relationship("ListingFeature", back_populates="listing")
 
 class Message(Base):  # <------------------------------------------ Message Model
     __tablename__ = "messages"
@@ -248,7 +257,23 @@ class DeliveryNotification(Base):  # <------------------------------------------
     delivery: Mapped["Delivery"] = relationship("Delivery", back_populates="delivery_notifications")
     delivery_notifications: Mapped[List["DeliveryNotification"]] = relationship("DeliveryNotification", back_populates="delivery")
 
+class Amenity(Base):  # <------------------------------------------ Amenity Model
+    __tablename__ = "amenities"
 
+    amenity_id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(100), nullable=False, unique=True)
+
+    listings: Mapped[List["Listing"]] = relationship("Listing", secondary=listing_amenities, back_populates="amenities")
+
+class ListingFeature(Base):  # <------------------------------------------ Listing Feature Model
+    __tablename__ = "listing_features"
+
+    feature_id: Mapped[int] = mapped_column(primary_key=True)
+    listing_id: Mapped[int] = mapped_column(ForeignKey("listings.listing_id"))
+    key: Mapped[str] = mapped_column(String(100))
+    value: Mapped[str] = mapped_column(String(100))
+
+    listing: Mapped["Listing"] = relationship("Listing", back_populates="features")
 
 
 with app.app_context():
