@@ -60,6 +60,10 @@ class User(Base):  # <------------------------------------------ User Model
     bookings: Mapped[List["Booking"]] = relationship("Booking", back_populates="user")
     reviews: Mapped[List["Review"]] = relationship("Review", back_populates="user")
     favorites: Mapped[List["Listing"]] = relationship("Listing", secondary=favorites, back_populates="favorited_by")
+    notifications: Mapped[List["GeneralNotification"]] = relationship("GeneralNotification", back_populates="user")
+    search_logs: Mapped[List["SearchLog"]] = relationship("SearchLog", back_populates="user")
+    delivery_notifications: Mapped[List["DeliveryNotification"]] = relationship("DeliveryNotification", back_populates="user")
+    deliveries: Mapped[List["Delivery"]] = relationship("Delivery", back_populates="user")
 
 class Listing(Base):  # <------------------------------------------ Listing Model
     __tablename__ = "listings"
@@ -82,7 +86,7 @@ class Listing(Base):  # <------------------------------------------ Listing Mode
     images: Mapped[List["Image"]] = relationship("Image", back_populates="listing")
     subcategory: Mapped["Subcategory"] = relationship("Subcategory", back_populates="listings")
     location: Mapped["Location"] = relationship("Location", back_populates="listing")
-    
+    deliveries: Mapped[List["Delivery"]] = relationship("Delivery", back_populates="listing")
 
 class Message(Base):  # <------------------------------------------ Message Model
     __tablename__ = "messages"
@@ -192,6 +196,58 @@ class Location(Base):  # <------------------------------------------ Location Mo
     country: Mapped[str] = mapped_column(String(50), nullable=False)
 
     listing: Mapped["Listing"] = relationship("Listing", back_populates="location", uselist=False)
+    search_logs: Mapped[List["SearchLog"]] = relationship("SearchLog", back_populates="location")
+
+class GeneralNotification(Base):  # <------------------------------------------ General Notifications Model
+    __tablename__ = "general_notifications"
+
+    notification_id: Mapped[int] = mapped_column(primary_key=True)
+    message: Mapped[str] = mapped_column(Text, nullable=False)
+    is_read: Mapped[bool] = mapped_column(default=False, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow, nullable=False)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.user_id"), nullable=True)
+
+    user:Mapped["User"] = relationship("User", back_populates="notifications")
+
+class SearchLog(Base):  # <------------------------------------------ Search Log Model
+    __tablename__ = "search_logs"
+
+    search_log_id: Mapped[int] = mapped_column(primary_key=True)
+    keyword: Mapped[str] = mapped_column(String(255), nullable=False)
+    searched_at: Mapped[datetime] = mapped_column(default=datetime.utcnow, nullable=False)
+    location_id: Mapped[int] = mapped_column(ForeignKey("locations.location_id"), nullable=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.user_id"))
+
+    location: Mapped["Location"] = relationship("Location", back_populates="search_logs")
+    user: Mapped["User"] = relationship("User", back_populates="search_logs")
+
+class Delivery(Base):  # <------------------------------------------ Delivery Model
+    __tablename__ = "deliveries"
+
+    delivery_id: Mapped[int] = mapped_column(primary_key=True)
+    status: Mapped[str] = mapped_column(String(50), default="pending")
+    scheduled_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.user_id"), nullable=False)
+    listing_id: Mapped[int] = mapped_column(ForeignKey("listings.listing_id"), nullable=False)
+
+    user: Mapped["User"] = relationship("User", back_populates="deliveries")
+    listing: Mapped["Listing"] = relationship("Listing", back_populates="deliveries")
+    delivery_notifications: Mapped[List["DeliveryNotification"]] = relationship("DeliveryNotification", back_populates="delivery")
+
+class DeliveryNotification(Base):  # <------------------------------------------ Delivery Notification Model
+    __tablename__ = "delivery_notifications"
+
+    delivery_notification_id: Mapped[int] = mapped_column(primary_key=True)
+    message: Mapped[str] = mapped_column(Text, nullable=False)
+    sent_at: Mapped[datetime] = mapped_column(default=datetime.utcnow, nullable=False)
+    type: Mapped[str] = mapped_column(String(50), default="info")
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.user_id"), nullable=False)
+    delivery_id: Mapped[int] = mapped_column(ForeignKey("deliveries.delivery_id"), nullable=False)
+
+    user: Mapped["User"] = relationship("User", back_populates="delivery_notifications")
+    delivery: Mapped["Delivery"] = relationship("Delivery", back_populates="delivery_notifications")
+    delivery_notifications: Mapped[List["DeliveryNotification"]] = relationship("DeliveryNotification", back_populates="delivery")
+
 
 
 
