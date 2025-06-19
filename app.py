@@ -1,10 +1,11 @@
-from flask import Flask
+from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
-from sqlalchemy import ForeignKey, String, Integer, Enum, Text, DateTime, Table, text, Column
+from sqlalchemy import ForeignKey, String, Integer, Enum, Text, Table, Column, select
 from datetime import datetime
 from typing import List
 from flask_marshmallow import Marshmallow
+from marshmallow import ValidationError
 import enum
 from passwords import password
 
@@ -292,8 +293,31 @@ class RoleSchema(ma.SQLAlchemyAutoSchema):  # <---------------------------------
 role_schema = RoleSchema()
 roles_schema = RoleSchema(many=True)
 
+class UserSchema(ma.SQLAlchemyAutoSchema):  # <------------------------------------------ User Schema
+    class Meta:
+        model = User
 
+user_schema = UserSchema()
+users_schema = UserSchema(many=True)
 
+# xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx ROUTES xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+@app.route("/users", methods = ['POST'])  # <------------------------------------------ Create User Route
+def create_user():
+    try:
+        user_data = user_schema.load(request.get_json())
+    except ValidationError as e:
+        return jsonify(e.messages), 400
+    
+    query = select(User).where(User.email == user_data['email'])
+    existing_user = db.session.execute(query).scalars().all()
+    if existing_user:
+        return jsonify({"error": "Email already exists"}), 400
+    
+    new_user = User(**user_data)
+    db.session.add(new_user)
+    db.session.commit()
+    return user_schema.jsonify(new_user), 201
 
 
 with app.app_context():
