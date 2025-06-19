@@ -12,6 +12,7 @@ from passwords import password
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+mysqlconnector://root:{password}@localhost/renttar_db'
 
+# xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx BASE CLASS xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 class Base(DeclarativeBase):  # <------------------------------------------ Base Class
     pass
 
@@ -20,6 +21,8 @@ ma = Marshmallow()
 
 db.init_app(app)
 ma.init_app(app)
+
+# xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx ASSOCIATION TABLES xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 user_roles = Table(  # <------------------------------------------ user_roles association model
     'user_roles',
@@ -42,7 +45,7 @@ listing_amenities = Table(  # <------------------------------------------ listin
     Column('amenity_id', ForeignKey('amenities.amenity_id'), primary_key=True)
 )
 
-# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ASSOCIATION TABLES ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+# xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx MODELS xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 class Role(Base):  # <------------------------------------------ Role Model
     __tablename__ = "roles"
 
@@ -58,6 +61,7 @@ class User(Base):  # <------------------------------------------ User Model
     first_name: Mapped[str] = mapped_column(String(50), nullable=False)
     email: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow, nullable=False)
+    location_id: Mapped[int] = mapped_column(ForeignKey("locations.location_id"), nullable=True)
 
     roles: Mapped[List["Role"]] = relationship("Role", secondary=user_roles, back_populates="users")
     listings: Mapped[List["Listing"]] = relationship("Listing", back_populates="owner")
@@ -71,6 +75,7 @@ class User(Base):  # <------------------------------------------ User Model
     search_logs: Mapped[List["SearchLog"]] = relationship("SearchLog", back_populates="user")
     delivery_notifications: Mapped[List["DeliveryNotification"]] = relationship("DeliveryNotification", back_populates="user")
     deliveries: Mapped[List["Delivery"]] = relationship("Delivery", back_populates="user")
+    location: Mapped["Location"] = relationship("Location")
 
 class Listing(Base):  # <------------------------------------------ Listing Model
     __tablename__ = "listings"
@@ -203,7 +208,11 @@ class Location(Base):  # <------------------------------------------ Location Mo
     state: Mapped[str] = mapped_column(String(50), nullable=False)
     zip_code: Mapped[str] = mapped_column(String(20), nullable=False)
     country: Mapped[str] = mapped_column(String(50), nullable=False)
+    latitude: Mapped[float] = mapped_column(nullable=True)
+    longitude: Mapped[float] = mapped_column(nullable=True)
 
+    listing: Mapped["Listing"] = relationship("Listing", back_populates="location", uselist=False)
+    search_logs: Mapped[List["SearchLog"]] = relationship("SearchLog", back_populates="location")
     listing: Mapped["Listing"] = relationship("Listing", back_populates="location", uselist=False)
     search_logs: Mapped[List["SearchLog"]] = relationship("SearchLog", back_populates="location")
 
@@ -255,7 +264,6 @@ class DeliveryNotification(Base):  # <------------------------------------------
 
     user: Mapped["User"] = relationship("User", back_populates="delivery_notifications")
     delivery: Mapped["Delivery"] = relationship("Delivery", back_populates="delivery_notifications")
-    delivery_notifications: Mapped[List["DeliveryNotification"]] = relationship("DeliveryNotification", back_populates="delivery")
 
 class Amenity(Base):  # <------------------------------------------ Amenity Model
     __tablename__ = "amenities"
@@ -274,6 +282,18 @@ class ListingFeature(Base):  # <------------------------------------------ Listi
     value: Mapped[str] = mapped_column(String(100))
 
     listing: Mapped["Listing"] = relationship("Listing", back_populates="features")
+
+# xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx SCHEMAS xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+class RoleSchema(ma.SQLAlchemyAutoSchema):  # <------------------------------------------ Role Schema
+    class Meta:
+        model = Role
+
+role_schema = RoleSchema()
+roles_schema = RoleSchema(many=True)
+
+
+
 
 
 with app.app_context():
