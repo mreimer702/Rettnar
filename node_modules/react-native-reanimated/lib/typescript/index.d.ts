@@ -5,7 +5,7 @@ export type { DecayAnimation, DelayAnimation, RepeatAnimation, SequenceAnimation
 export { cancelAnimation, defineAnimation, withClamp, withDecay, withDelay, withRepeat, withSequence, withSpring, withTiming, } from './animation';
 export type { ParsedColorArray } from './Colors';
 export { convertToRGBA, isColor, processColor } from './Colors';
-export type { AnimatableValue, AnimatableValueObject, AnimatedKeyboardInfo, AnimatedKeyboardOptions, AnimatedSensor, AnimatedStyle, AnimatedTransform, AnimateStyle, Animation, AnimationCallback, AnimationObject, BaseLayoutAnimationConfig, EasingFunction, EntryAnimationsValues, EntryExitAnimationFunction, ExitAnimationsValues, IEntryExitAnimationBuilder, ILayoutAnimationBuilder, LayoutAnimation, LayoutAnimationFunction, LayoutAnimationStartFunction, LayoutAnimationsValues, LayoutAnimationType, MeasuredDimensions, SensorConfig, SharedTransitionAnimationsValues, SharedValue, StyleProps, StylesOrDefault, TransformArrayItem, Value3D, ValueRotation, } from './commonTypes';
+export type { AnimatableValue, AnimatableValueObject, AnimatedKeyboardInfo, AnimatedKeyboardOptions, AnimatedSensor, AnimatedStyle, AnimatedTransform, AnimateStyle, Animation, AnimationCallback, AnimationObject, BaseLayoutAnimationConfig, EasingFunction, EntryAnimationsValues, EntryExitAnimationFunction, ExitAnimationsValues, IEntryExitAnimationBuilder, ILayoutAnimationBuilder, KeyframeProps, LayoutAnimation, LayoutAnimationFunction, LayoutAnimationStartFunction, LayoutAnimationsValues, LayoutAnimationType, MeasuredDimensions, SensorConfig, SharedTransitionAnimationsValues, SharedValue, StyleProps, StylesOrDefault, TransformArrayItem, Value3D, ValueRotation, } from './commonTypes';
 export { InterfaceOrientation, IOSReferenceFrame, isWorkletFunction, KeyboardState, ReduceMotion, SensorType, SharedTransitionType, } from './commonTypes';
 export type { FlatListPropsWithLayout } from './component/FlatList';
 export { LayoutAnimationConfig } from './component/LayoutAnimationConfig';
@@ -19,7 +19,7 @@ export { createWorkletRuntime, enableLayoutAnimations, executeOnUIRuntimeSync, g
 export type { EasingFactoryFn, EasingFn, EasingFunctionFactory, } from './Easing';
 export { Easing } from './Easing';
 export type { FrameInfo } from './frameCallback';
-export type { Adaptable, AdaptTransforms, AnimatedProps, AnimatedStyleProp, AnimateProps, TransformStyleTypes, } from './helperTypes';
+export type { Adaptable, AdaptTransforms, AnimatedProps, AnimatedStyleProp, AnimateProps, EntryOrExitLayoutType, TransformStyleTypes, } from './helperTypes';
 export type { AnimatedRef, DerivedValue, EventHandler, EventHandlerProcessed, FrameCallback, GestureHandlers, ReanimatedEvent, ScrollEvent, ScrollHandler, ScrollHandlerProcessed, ScrollHandlers, UseHandlerContext, } from './hook';
 export { useAnimatedGestureHandler, useAnimatedKeyboard, useAnimatedProps, useAnimatedReaction, useAnimatedRef, useAnimatedScrollHandler, useAnimatedSensor, useAnimatedStyle, useComposedEventHandler, useDerivedValue, useEvent, useFrameCallback, useHandler, useReducedMotion, useScrollViewOffset, useSharedValue, useWorkletCallback, } from './hook';
 export type { InterpolateConfig, InterpolateHSV, InterpolateRGB, InterpolationOptions, } from './interpolateColor';
@@ -30,6 +30,7 @@ export type { ExtrapolationConfig, ExtrapolationType } from './interpolation';
 export { clamp, Extrapolation, interpolate } from './interpolation';
 export { isSharedValue } from './isSharedValue';
 export { advanceAnimationByFrame, advanceAnimationByTime, getAnimatedStyle, setUpTests, withReanimatedTimer, } from './jestUtils';
+export type { ReanimatedKeyframe } from './layoutReanimation';
 export { BaseAnimationBuilder, BounceIn, BounceInDown, BounceInLeft, BounceInRight, BounceInUp, BounceOut, BounceOutDown, BounceOutLeft, BounceOutRight, BounceOutUp, combineTransition, ComplexAnimationBuilder, CurvedTransition, EntryExitTransition, FadeIn, FadeInDown, FadeInLeft, FadeInRight, FadeInUp, FadeOut, FadeOutDown, FadeOutLeft, FadeOutRight, FadeOutUp, FadingTransition, FlipInEasyX, FlipInEasyY, FlipInXDown, FlipInXUp, FlipInYLeft, FlipInYRight, FlipOutEasyX, FlipOutEasyY, FlipOutXDown, FlipOutXUp, FlipOutYLeft, FlipOutYRight, JumpingTransition, Keyframe, Layout, LightSpeedInLeft, LightSpeedInRight, LightSpeedOutLeft, LightSpeedOutRight, LinearTransition, PinwheelIn, PinwheelOut, RollInLeft, RollInRight, RollOutLeft, RollOutRight, RotateInDownLeft, RotateInDownRight, RotateInUpLeft, RotateInUpRight, RotateOutDownLeft, RotateOutDownRight, RotateOutUpLeft, RotateOutUpRight, SequencedTransition, SharedTransition, SlideInDown, SlideInLeft, SlideInRight, SlideInUp, SlideOutDown, SlideOutLeft, SlideOutRight, SlideOutUp, StretchInX, StretchInY, StretchOutX, StretchOutY, ZoomIn, ZoomInDown, ZoomInEasyDown, ZoomInEasyUp, ZoomInLeft, ZoomInRight, ZoomInRotate, ZoomInUp, ZoomOut, ZoomOutDown, ZoomOutEasyDown, ZoomOutEasyUp, ZoomOutLeft, ZoomOutRight, ZoomOutRotate, ZoomOutUp, } from './layoutReanimation';
 export { LogLevel as ReanimatedLogLevel } from './logger';
 export { startMapper, stopMapper } from './mappers';

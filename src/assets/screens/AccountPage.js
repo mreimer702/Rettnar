@@ -11,7 +11,7 @@ export default function AccountPage() {
   // TODO: Replace with actual user data from backend (e.g. avatar, name, status)
   const userInfo = {
     name: "User's Name",
-    avatar: require('../assets/user-avatar.jpg'), // or use URI from backend
+    avatar: require('../user-avatar.jpg'), // or use URI from backend
     welcomeMessage: 'Welcome back!',
   };
 

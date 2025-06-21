@@ -15,12 +15,12 @@ export default function EquipmentPage() {
 
   // Fetch equipment data on component mount using useEffect
   useEffect(() => {
-    // TODO: Backend - Replace this mock data with real data from API
+ 
     setEquipmentList(
       [...Array(6)].map((_, i) => ({
         id: i + 1,
         title: `Equipment ${i + 1}`,
-        image: require('../assets/equipment-placeholder.jpg'), // TODO: Backend should provide actual image URLs
+        image: require('../equipment-placeholder.jpg'), // TODO: Backend should provide actual image URLs
         price: '$50/day', // TODO: Backend should provide actual pricing
       })),
     );

@@ -10,7 +10,7 @@ import {
   Modal,
   TextInput,
 } from 'react-native';
-import CalendarPicker from 'react-native-calendar-picker';
+
 import {ChevronLeft} from 'react-native-feather';
 import styles from '../styles/SearchResultStyle';
 

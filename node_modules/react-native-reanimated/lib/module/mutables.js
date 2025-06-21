@@ -2,13 +2,14 @@
 
 import { ReanimatedError } from "./errors.js";
 import { logger } from "./logger/index.js";
-import { shouldBeUseWeb } from "./PlatformChecker.js";
+import { isJest, shouldBeUseWeb } from "./PlatformChecker.js";
 import { isFirstReactRender, isReactRendering } from "./reactUtils.js";
 import { shareableMappingCache } from "./shareableMappingCache.js";
 import { makeShareableCloneRecursive } from "./shareables.js";
 import { executeOnUIRuntimeSync, runOnUI } from "./threads.js";
 import { valueSetter } from "./valueSetter.js";
 const SHOULD_BE_USE_WEB = shouldBeUseWeb();
+const IS_JEST = isJest();
 function shouldWarnAboutAccessDuringRender() {
   return __DEV__ && isReactRendering() && !isFirstReactRender();
 }
@@ -199,7 +200,13 @@ function makeMutableWeb(initial) {
   };
   hideInternalValueProp(mutable);
   addCompilerSafeGetAndSet(mutable);
+  if (IS_JEST) {
+    mutable.toJSON = () => mutableToJSON(value);
+  }
   return mutable;
 }
 export const makeMutable = SHOULD_BE_USE_WEB ? makeMutableWeb : makeMutableNative;
+function mutableToJSON(value) {
+  return JSON.stringify(value);
+}
 //# sourceMappingURL=mutables.js.map

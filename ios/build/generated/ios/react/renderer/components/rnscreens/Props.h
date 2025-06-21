@@ -24,10 +24,10 @@ class RNSFullWindowOverlayProps final : public ViewProps {
 
 #pragma mark - Props
 
-  
+  bool accessibilityContainerViewIsModal{true};
 };
 
-enum class RNSModalScreenStackPresentation { Push, Modal, TransparentModal, FullScreenModal, FormSheet, ContainedModal, ContainedTransparentModal };
+enum class RNSModalScreenStackPresentation { Push, Modal, TransparentModal, FullScreenModal, FormSheet, PageSheet, ContainedModal, ContainedTransparentModal };
 
 static inline void fromRawValue(const PropsParserContext& context, const RawValue &value, RNSModalScreenStackPresentation &result) {
   auto string = (std::string)value;
@@ -36,6 +36,7 @@ static inline void fromRawValue(const PropsParserContext& context, const RawValu
   if (string == "transparentModal") { result = RNSModalScreenStackPresentation::TransparentModal; return; }
   if (string == "fullScreenModal") { result = RNSModalScreenStackPresentation::FullScreenModal; return; }
   if (string == "formSheet") { result = RNSModalScreenStackPresentation::FormSheet; return; }
+  if (string == "pageSheet") { result = RNSModalScreenStackPresentation::PageSheet; return; }
   if (string == "containedModal") { result = RNSModalScreenStackPresentation::ContainedModal; return; }
   if (string == "containedTransparentModal") { result = RNSModalScreenStackPresentation::ContainedTransparentModal; return; }
   abort();
@@ -48,6 +49,7 @@ static inline std::string toString(const RNSModalScreenStackPresentation &value)
     case RNSModalScreenStackPresentation::TransparentModal: return "transparentModal";
     case RNSModalScreenStackPresentation::FullScreenModal: return "fullScreenModal";
     case RNSModalScreenStackPresentation::FormSheet: return "formSheet";
+    case RNSModalScreenStackPresentation::PageSheet: return "pageSheet";
     case RNSModalScreenStackPresentation::ContainedModal: return "containedModal";
     case RNSModalScreenStackPresentation::ContainedTransparentModal: return "containedTransparentModal";
   }
@@ -216,7 +218,7 @@ class RNSScreenFooterProps final : public ViewProps {
   
 };
 
-enum class RNSScreenStackPresentation { Push, Modal, TransparentModal, FullScreenModal, FormSheet, ContainedModal, ContainedTransparentModal };
+enum class RNSScreenStackPresentation { Push, Modal, TransparentModal, FullScreenModal, FormSheet, PageSheet, ContainedModal, ContainedTransparentModal };
 
 static inline void fromRawValue(const PropsParserContext& context, const RawValue &value, RNSScreenStackPresentation &result) {
   auto string = (std::string)value;
@@ -225,6 +227,7 @@ static inline void fromRawValue(const PropsParserContext& context, const RawValu
   if (string == "transparentModal") { result = RNSScreenStackPresentation::TransparentModal; return; }
   if (string == "fullScreenModal") { result = RNSScreenStackPresentation::FullScreenModal; return; }
   if (string == "formSheet") { result = RNSScreenStackPresentation::FormSheet; return; }
+  if (string == "pageSheet") { result = RNSScreenStackPresentation::PageSheet; return; }
   if (string == "containedModal") { result = RNSScreenStackPresentation::ContainedModal; return; }
   if (string == "containedTransparentModal") { result = RNSScreenStackPresentation::ContainedTransparentModal; return; }
   abort();
@@ -237,6 +240,7 @@ static inline std::string toString(const RNSScreenStackPresentation &value) {
     case RNSScreenStackPresentation::TransparentModal: return "transparentModal";
     case RNSScreenStackPresentation::FullScreenModal: return "fullScreenModal";
     case RNSScreenStackPresentation::FormSheet: return "formSheet";
+    case RNSScreenStackPresentation::PageSheet: return "pageSheet";
     case RNSScreenStackPresentation::ContainedModal: return "containedModal";
     case RNSScreenStackPresentation::ContainedTransparentModal: return "containedTransparentModal";
   }

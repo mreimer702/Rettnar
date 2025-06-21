@@ -13,7 +13,7 @@ export default function OnboardingScreen({navigation}) {
   return (
     // Background Image for the Onboarding Page
     <ImageBackground
-      source={require('../assets/Onboarding.jpg')} // TODO: Replace with a dynamic image from the backend if necessary
+      source={require('../Onboarding.jpg')} // TODO: Replace with a dynamic image from the backend if necessary
       style={styles.container}
       resizeMode="cover">
       {/* Status bar settings for better visibility */}
