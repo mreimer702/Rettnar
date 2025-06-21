@@ -412,7 +412,7 @@ def create_user():
         country=incoming_data["country"]
     )
     db.session.add(new_location)
-    db.session.flush()  # to get location_id
+    db.session.flush()  
 
     new_user = User(
         first_name=user_data.first_name,
@@ -484,7 +484,6 @@ def update_user(user_id):
 
     db.session.commit()
     return user_schema.jsonify(user), 200
-
 
 @app.route("/users/<int:user_id>", methods=['DELETE'])  # <------------------------------------------ DELETE USER ROUTE
 def delete_user(user_id):
