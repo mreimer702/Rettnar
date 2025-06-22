@@ -1,0 +1,24 @@
+/project
+|__ /application
+|       |__ __init__.py - create_app() lives here
+|       |__ extensions.py
+|       |__ /blueprints
+|       |       |__ /location
+|       |       |       |__ __init__.py
+|       |       |       |__ routes.py
+|       |       |       |__ locationSchema.py
+|       |       |__ /roles
+|       |       |       |__ __init__.py
+|       |       |       |__ routes.py
+|       |       |       |__ roleSchema.py
+|       |       |__ /users
+|       |               |__ __init__.py - Initialize User Blueprint 
+|       |               |__ routes.py - Create User routes 
+|       |               |__ userSchema.py 
+|       |__ models.py
+|__ /ERD
+|       |__ RETTNAR_ERD.svg
+|__ app.py
+|__ config.py
+|__ filestructure.txt
+|__ requirements.txt
