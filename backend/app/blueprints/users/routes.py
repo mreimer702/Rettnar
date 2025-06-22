@@ -5,6 +5,49 @@ from marshmallow import ValidationError
 from app.models import User, Role, Location, db
 from app.blueprints.users.schemas import user_schema, users_schema, role_schema, roles_schema
 from app.blueprints.users import users_bp
+from werkzeug.security import generate_password_hash, check_password_hash
+from app.utils.util import encode_user_token, user_token_required
+from app.extensions import limiter
+
+@users_bp.route("/register", methods=["POST"])
+@limiter.limit('5 per minute')
+def register_user():
+    data = request.get_json()
+    first_name = data.get("first_name")
+    email = data.get("email")
+    password = data.get("password")
+
+    if not first_name or not email or not password:
+        return jsonify({"error": "First name, email, and password are required"}), 400
+
+    existing_user = db.session.execute(select(User).where(User.email == email)).scalars().first()
+    if existing_user:
+        return jsonify({"error": "Email already exists"}), 400
+
+    hashed_password = generate_password_hash(password)
+    new_user = User(first_name=first_name, email=email, password=hashed_password)
+    db.session.add(new_user)
+    db.session.commit()
+
+    token = encode_user_token(new_user.user_id)
+    return jsonify({"token": token}), 201
+
+@users_bp.route("/login", methods=["POST"])
+@limiter.limit('10 per minute')
+def login_user():
+    data = request.get_json()
+    email = data.get("email")
+    password = data.get("password")
+
+    if not email or not password:
+        return jsonify({"error": "Email and password are required"}), 400
+
+    user = db.session.execute(select(User).where(User.email == email)).scalars().first()
+    if not user or not check_password_hash(user.password, password):
+        return jsonify({"error": "Invalid email or password"}), 401
+
+    token = encode_user_token(user.user_id)
+    return jsonify({"token": token}), 200
 
 @users_bp.route("/roles", methods=["POST"])  # <------------------------------------------ CREATE ROLE ROUTE
 def create_role():
@@ -119,7 +162,8 @@ def get_user(user_id):
         return jsonify({"error": "User not found"}), 404
     return user_schema.jsonify(user), 200
 
-@users_bp.route("/users/<int:user_id>", methods=['PUT'])  # <------------------------------------------ UPDATE USER ROUTE
+@users_bp.route("/users/<int:user_id>", methods=['PUT'])
+@user_token_required  # <------------------------------------------ UPDATE USER ROUTE
 def update_user(user_id):
     user = db.session.execute(select(User).where(User.user_id == user_id)).scalars().first()
     if not user:
@@ -168,7 +212,8 @@ def update_user(user_id):
     return user_schema.jsonify(user), 200
 
 
-@users_bp.route("/users/<int:user_id>", methods=['DELETE'])  # <------------------------------------------ DELETE USER ROUTE
+@users_bp.route("/users/<int:user_id>", methods=['DELETE'])
+@user_token_required  # <------------------------------------------ DELETE USER ROUTE
 def delete_user(user_id):
     user = db.session.execute(select(User).where(User.user_id == user_id)).scalars().first()
     if not user:
