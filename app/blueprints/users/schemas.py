@@ -1,7 +1,7 @@
 from app.extensions import ma
 from app.models import User
 from ..roles.schemas import RoleSchema
-from ..location.schemas import LocationSchema
+from ..locations.schemas import LocationSchema
 from marshmallow import fields
 
 # xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx USER Schemas xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
