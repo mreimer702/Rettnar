@@ -3,7 +3,7 @@ from sqlalchemy import select
 from typing import List, cast
 from marshmallow import ValidationError
 from app.models import User, Role, Location, db
-from app.blueprints.users.schemas import user_schema, users_schema, role_schema, roles_schema
+from app.blueprints.users.schemas import user_schema, users_schema, role_schema, roles_schema, user_update_schema
 from app.blueprints.users import users_bp
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.utils.util import encode_user_token, user_token_required
@@ -112,7 +112,7 @@ def delete_role(role_id):
 
 # xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx USER ROUTES xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
-@users_bp.route("/users", methods=['POST'])  # <------------------------------------------ CREATE USER ROUTE
+@users_bp.route("/", methods=['POST'])  # <------------------------------------------ CREATE USER ROUTE
 def create_user():
     try:
         incoming_data = request.get_json()
@@ -162,7 +162,7 @@ def get_user(user_id):
         return jsonify({"error": "User not found"}), 404
     return user_schema.jsonify(user), 200
 
-@users_bp.route("/users/<int:user_id>", methods=['PUT'])
+@users_bp.route("/", methods=['PUT'])
 @user_token_required  # <------------------------------------------ UPDATE USER ROUTE
 def update_user(user_id):
     user = db.session.execute(select(User).where(User.user_id == user_id)).scalars().first()
@@ -171,46 +171,52 @@ def update_user(user_id):
 
     try:
         incoming_data = request.get_json()
-        user_schema.load(incoming_data, partial=True)  # <--- Validating 
+        user_data = user_update_schema.load(incoming_data, partial=True) 
     except ValidationError as e:
         return jsonify(e.messages), 400
 
-    if "first_name" in incoming_data:
-        user.first_name = incoming_data["first_name"]
+    if 'current_password' in user_data:
+        if not check_password_hash(user.password, user_data['current_password']):
+            return jsonify({"error": "Current password is incorrect"}), 400
+        
+        user.password_hash = generate_password_hash(user_data['new_password'])
 
-    if "email" in incoming_data:
-        existing_user = db.session.execute(
-            select(User).where(User.email == incoming_data["email"], User.user_id != user_id)
-        ).scalars().first()
+    if 'first_name' in user_data:
+        user.first_name = user_data['first_name']
+
+    if 'last_name' in user_data:
+        user.last_name = user_data['last_name']
+
+    if 'email' in user_data:
+        existing_user = db.session.execute(select(User).where(User.email == user_data['email'], User.user_id != user.user_id)).scalars().first()
         if existing_user:
             return jsonify({"error": "Email already exists"}), 400
-        user.email = incoming_data["email"]
+        user.email = user_data['email']
 
-    location_fields = ["address", "city", "state", "zip_code", "country"] # <--- Location Update
-    if all(field in incoming_data for field in location_fields):
-        new_location = Location(
-            address=incoming_data["address"],
-            city=incoming_data["city"],
-            state=incoming_data["state"],
-            zip_code=incoming_data["zip_code"],
-            country=incoming_data["country"]
-        )
-        db.session.add(new_location)
-        db.session.flush()
-        user.location_id = new_location.location_id
+    if 'phone' in user_data:
+        user.phone = user_data['phone']
 
-    if "role_ids" in incoming_data: # <--- Role Update
-        role_ids = incoming_data.get("role_ids")
-        roles_query = select(Role).where(Role.role_id.in_(role_ids))
-        matched_roles = db.session.execute(roles_query).scalars().all()
+    location_fields = ['address', 'city', 'state', 'zip_code', 'country']
+    if any(field in user_data for field in location_fields):
+        if user.location:
+            for field in location_fields:
+                if field in user_data:
+                    setattr(user.location, field, user_data[field])
         
-        if len(matched_roles) != len(role_ids):
-            return jsonify({"error": "One or more roles not found"}), 404
-        user.roles = cast(List[Role], matched_roles)
+        else:
+            new_location = Location(
+                address=user_data.get('address', ""),
+                city=user_data.get('city', ""),
+                state=user_data.get('state', ""),
+                zip_code=user_data.get('zip_code', ""),
+                country=user_data.get('country', "")
+            )
+            db.session.add(new_location)
+            db.session.flush()
+            user.location_id = new_location.location_id
 
     db.session.commit()
     return user_schema.jsonify(user), 200
-
 
 @users_bp.route("/users/<int:user_id>", methods=['DELETE'])
 @user_token_required  # <------------------------------------------ DELETE USER ROUTE

@@ -1,5 +1,6 @@
 from app import create_app
-from app.models import db
+from app.models import db, User, Role, Location
+from werkzeug.security import generate_password_hash
 
 app = create_app('DevelopmentConfig')
 

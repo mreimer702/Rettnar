@@ -52,8 +52,13 @@ class User(Base):  # <------------------------------------------ User Model
 
     user_id: Mapped[int] = mapped_column(primary_key=True)
     first_name: Mapped[str] = mapped_column(String(50), nullable=False)
+    last_name: Mapped[str] = mapped_column(String(50), nullable=True)
     email: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
+    password_hash: Mapped[str] = mapped_column(String(128), nullable=False)
+    phone: Mapped[str] = mapped_column(String(20), nullable=True)
     created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    is_active: Mapped[bool] = mapped_column(default=True, nullable=False)
     location_id: Mapped[int] = mapped_column(ForeignKey("locations.location_id"), nullable=True)
 
     roles: Mapped[List["Role"]] = relationship("Role", secondary=user_roles, back_populates="users")
