@@ -1,6 +1,6 @@
 from .schemas import location_schema, locations_schema
 from flask import request, jsonify
-from sqlalchemy import select
+from sqlalchemy import select, func
 from app.models import Listing, User, Location, Subcategory, db
 from marshmallow import ValidationError
 from . import locations_bp
@@ -34,6 +34,27 @@ def create_location():
 def get_locations():
     locations = db.session.execute(select(Location)).scalars().all()
     return locations_schema.jsonify(locations), 200
+
+@locations_bp.route("/<int:page>/<int:per_page>", methods=["GET"]) # <------------------------------------------ GET LOCATIONS BY PAGINATION
+def get_locations_paginated(page, per_page):
+    if page < 1 or per_page < 1 or per_page > 100:
+        return jsonify({"error": "Invalid pagination values"}), 400
+
+    query = select(Location)
+
+    count_q = query.with_only_columns(func.count()).order_by(None)
+    total = db.session.execute(count_q).scalar_one()
+
+    results = db.session.execute(
+        query.limit(per_page).offset((page - 1) * per_page)
+    ).scalars().all()
+
+    if not results:
+        return jsonify({"message": "No locations found."}), 404
+
+    return jsonify({
+        "data": locations_schema.dump(results)
+    }), 200
 
 @locations_bp.route("/<int:location_id>", methods=["GET"]) # <------------------------------------------ GET LOCATION BY ID ROUTE
 def get_location(location_id):
@@ -93,4 +114,3 @@ def search_locations():
         return jsonify({"message": "No locations found matching your criteria."}), 404
 
     return locations_schema.jsonify(locations), 200
-

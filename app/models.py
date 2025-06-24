@@ -196,9 +196,9 @@ class Location(Base):  # <------------------------------------------ Location Mo
 
     location_id: Mapped[int] = mapped_column(primary_key=True)
     address: Mapped[str] = mapped_column(String(100), nullable=False)
-    city: Mapped[str] = mapped_column(String(50), nullable=False)
-    state: Mapped[str] = mapped_column(String(50), nullable=False)
-    zip_code: Mapped[str] = mapped_column(String(20), nullable=False)
+    city: Mapped[str] = mapped_column(String(50), nullable=False, index=True)
+    state: Mapped[str] = mapped_column(String(50), nullable=False, index=True)
+    zip_code: Mapped[str] = mapped_column(String(20), nullable=False, index=True)
     country: Mapped[str] = mapped_column(String(50), nullable=False)
     latitude: Mapped[float] = mapped_column(nullable=True)
     longitude: Mapped[float] = mapped_column(nullable=True)
