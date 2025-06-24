@@ -71,3 +71,26 @@ def delete_location(location_id):
     db.session.delete(location)
     db.session.commit()
     return jsonify({"message": "Location deleted successfully"}), 200
+
+@locations_bp.route("/search", methods=["GET"])  # <------------------------------------------ SEARCH LOCATIONS ROUTE
+def search_locations():
+    city = request.args.get("city")
+    state = request.args.get("state")
+    zip_code = request.args.get("zip_code")
+
+    query = select(Location)
+
+    if city:
+        query = query.where(Location.city.ilike(f"%{city}%"))
+    if state:
+        query = query.where(Location.state.ilike(f"%{state}%"))
+    if zip_code:
+        query = query.where(Location.zip_code.ilike(f"%{zip_code}%"))
+
+    locations = db.session.execute(query).scalars().all()
+
+    if not locations:
+        return jsonify({"message": "No locations found matching your criteria."}), 404
+
+    return locations_schema.jsonify(locations), 200
+
