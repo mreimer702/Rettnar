@@ -30,7 +30,9 @@ def create_user():
         city=incoming_data["city"],
         state=incoming_data["state"],
         zip_code=incoming_data["zip_code"],
-        country=incoming_data["country"]
+        country=incoming_data["country"],
+        latitude=incoming_data.get("latitude"),
+        longitude=incoming_data.get("longitude")
     )
     db.session.add(new_location)
     db.session.flush()  

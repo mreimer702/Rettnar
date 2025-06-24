@@ -15,6 +15,9 @@ class UserSchema(ma.SQLAlchemyAutoSchema):  # <---------------------------------
     state = fields.String(required=True)
     zip_code = fields.String(required=True)
     country = fields.String(required=True)
+    latitude = fields.Float(required=False, allow_none=True)
+    longitude = fields.Float(required=False, allow_none=True)
+
 
     role_ids = fields.List(fields.Integer(), load_only=True, required=True, error_messages={"required": "Role is required."})
     class Meta:
