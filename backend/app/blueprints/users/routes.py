@@ -176,7 +176,7 @@ def update_user(user_id):
         return jsonify(e.messages), 400
 
     if 'current_password' in user_data:
-        if not check_password_hash(user.password, user_data['current_password']):
+        if not check_password_hash(user.password_hash, user_data['current_password']):
             return jsonify({"error": "Current password is incorrect"}), 400
         
         user.password_hash = generate_password_hash(user_data['new_password'])

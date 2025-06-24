@@ -13,4 +13,7 @@ def create_app(config_name):
     cache.init_app(app)
     limiter.init_app(app)
 
+    from app.blueprints.users import users_bp
+    app.register_blueprint(users_bp, url_prefix='/api/users')
+
     return app

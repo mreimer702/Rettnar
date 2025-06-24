@@ -1,9 +1,10 @@
-
+import os
 from jose import jwt
 from datetime import datetime, timedelta, timezone
 from functools import wraps
 from flask import request, jsonify
-import os
+
+SECRET_KEY = os.environ.get('SECRET_KEY') or 'super-secret-key-change-in-production'
 
 def encode_user_token(user_id):
     """
@@ -23,10 +24,10 @@ def encode_user_token(user_id):
         'sub': str(user_id)  # Token expires in 1 day'
     }
     
-    customer_token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
-    return customer_token
+    user_token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
+    return user_token
 
-def customer_token_required(f):
+def user_token_required(f):
     """
     Decorator to require a valid customer token for a route.
     
@@ -39,16 +40,16 @@ def customer_token_required(f):
     
     @wraps(f)
     def decorated(*args, **kwargs):
-        customer_token = None
+        user_token = None
 
         if "Authorization" in request.headers:
-            customer_token = request.headers["Authorization"].split(" ")[1]
+            user_token = request.headers["Authorization"].split(" ")[1]
 
-            if not customer_token:
+            if not user_token:
                 return jsonify({"message": "Token is missing!"}), 401
             
             try:
-                data = jwt.decode(customer_token, SECRET_KEY, algorithms=["HS256"])
+                data = jwt.decode(user_token, SECRET_KEY, algorithms=["HS256"])
                 user_id = data["sub"]
 
             except jwt.exceptions.ExpriredSignatureError as e:
