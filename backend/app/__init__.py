@@ -1,6 +1,8 @@
 from flask import Flask
 from .models import db
 from .extensions import ma, cache, limiter
+from app.blueprints.users import users_bp
+from app.blueprints.listings import listings_bp
 
 def create_app(config_name):
 
@@ -13,7 +15,7 @@ def create_app(config_name):
     cache.init_app(app)
     limiter.init_app(app)
 
-    from app.blueprints.users import users_bp
     app.register_blueprint(users_bp, url_prefix='/api/users')
+    app.register_blueprint(listings_bp, url_prefix='/api/listings')
 
     return app
