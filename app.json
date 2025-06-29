@@ -1,4 +1,32 @@
 {
-  "name": "EasyRent",
-  "displayName": "EasyRent"
+  "expo": {
+    "name": "Renttar",
+    "slug": "renttar",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./src/assets/equipment-placeholder.jpg",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./src/assets/Onboarding.jpg",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./src/assets/equipment-placeholder.jpg",
+        "backgroundColor": "#FFFFFF"
+      }
+    },
+    "web": {
+      "favicon": "./src/assets/equipment-placeholder.jpg"
+    },
+    "jsEngine": "hermes",
+    "entryPoint": "./App.js"
+  }
 }
