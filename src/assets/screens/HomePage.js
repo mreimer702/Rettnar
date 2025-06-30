@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -8,14 +8,16 @@ import {
   TextInput,
   Image,
   Dimensions,
+  StatusBar,
   Platform,
   KeyboardAvoidingView,
 } from 'react-native';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import SafeAreaWrapper from '../components/SafeAreaWrapper';
+import BottomNavBar from '../components/BottomNavBar';
 
-const { width, height } = Dimensions.get('window');
+const {width, height} = Dimensions.get('window');
 
 const categories = [
   {
@@ -26,10 +28,10 @@ const categories = [
     itemCount: '1.2k+',
   },
   {
-    id: 2,
-    name: 'Tools',
-    icon: 'build',
-    gradient: ['#4ECDC4', '#44D8CC'],
+    id: 2, 
+    name: 'Tools', 
+    icon: 'build', 
+    gradient: ['#4ECDC4', '#44D8CC'], 
     itemCount: '850+'
   },
   {
@@ -47,10 +49,10 @@ const categories = [
     itemCount: '340+',
   },
   {
-    id: 5,
-    name: 'Spaces',
-    icon: 'home',
-    gradient: ['#FECA57', '#FED368'],
+    id: 5, 
+    name: 'Spaces', 
+    icon: 'home', 
+    gradient: ['#FECA57', '#FED368'], 
     itemCount: '120+'
   },
   {
@@ -123,17 +125,22 @@ const testimonials = [
   },
 ];
 
-const HomePage = () => {
+const HomePage = ({navigation}) => {
   const [searchQuery, setSearchQuery] = useState('');
 
   const Header = () => (
-    <View style={styles.header}>
+    <SafeAreaView style={styles.header}>
+      <StatusBar 
+        barStyle="dark-content" 
+        backgroundColor="#FFFFFF" 
+        translucent={false}
+      />
       <View style={styles.headerContent}>
         <TouchableOpacity style={styles.logoContainer}>
-          <Text style={styles.logo}>Renttar</Text>
-
+            <Text style={styles.logo}>Renttar</Text>
+         
         </TouchableOpacity>
-
+        
         <View style={styles.headerRight}>
           <TouchableOpacity style={styles.locationButton}>
             <View style={styles.locationIconContainer}>
@@ -142,8 +149,9 @@ const HomePage = () => {
             <Text style={styles.locationText}>San Francisco</Text>
             <Icon name="keyboard-arrow-down" size={16} color="#9CA3AF" />
           </TouchableOpacity>
-
-          <TouchableOpacity style={styles.notificationButton}>
+          
+          <TouchableOpacity style={styles.notificationButton}
+          onPress={() => navigation.navigate('NotificationPage')}>
             <Icon name="notifications-none" size={22} color="#667eea" />
             <View style={styles.notificationBadge}>
               <Text style={styles.notificationBadgeText}>3</Text>
@@ -151,17 +159,17 @@ const HomePage = () => {
           </TouchableOpacity>
         </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 
   const HeroSection = () => (
     <View style={styles.heroWrapper}>
       <LinearGradient
         colors={['#667eea', '#764ba2', '#f093fb']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+        start={{x: 0, y: 0}}
+        end={{x: 1, y: 1}}
         style={styles.heroSection}>
-        <KeyboardAvoidingView
+        <KeyboardAvoidingView 
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={styles.heroKeyboardView}>
           <View style={styles.heroContent}>
@@ -181,8 +189,8 @@ const HomePage = () => {
               <View style={styles.searchBox}>
                 <LinearGradient
                   colors={['#4facfe', '#00f2fe']}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
+                  start={{x: 0, y: 0}}
+                  end={{x: 1, y: 0}}
                   style={styles.searchIconContainer}>
                   <Icon name="search" size={20} color="#FFFFFF" />
                 </LinearGradient>
@@ -195,12 +203,12 @@ const HomePage = () => {
                   returnKeyType="search"
                 />
               </View>
-
+              
               <TouchableOpacity activeOpacity={0.8}>
                 <LinearGradient
                   colors={['#fa709a', '#fee140']}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
+                  start={{x: 0, y: 0}}
+                  end={{x: 1, y: 0}}
                   style={styles.searchButton}>
                   <View style={styles.searchButtonInner}>
                     <Text style={styles.searchButtonText}>Search</Text>
@@ -218,8 +226,8 @@ const HomePage = () => {
                 <Text style={styles.secondaryButtonText}>Start Renting</Text>
                 <Icon name="add-circle-outline" size={18} color="#FFFFFF" />
               </TouchableOpacity>
-
-              <TouchableOpacity
+              
+              <TouchableOpacity 
                 style={styles.secondaryButton}
                 activeOpacity={0.8}>
                 <Text style={styles.secondaryButtonText}>List Your Item</Text>
@@ -314,8 +322,8 @@ const HomePage = () => {
       <View style={styles.stepsContainer}>
         {[
           {
-            step: 1,
-            title: 'Search & Discover',
+            step: 1, 
+            title: 'Search & Discover', 
             description: 'Find exactly what you need with smart filters and location-based results',
             icon: 'search',
             gradient: ['#667eea', '#764ba2']
@@ -363,8 +371,8 @@ const HomePage = () => {
     <View style={styles.lenderWrapper}>
       <LinearGradient
         colors={['#667eea', '#764ba2', '#f093fb']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+        start={{x: 0, y: 0}}
+        end={{x: 1, y: 1}}
         style={styles.lenderSection}>
         <View style={styles.lenderOverlay}>
           <View style={styles.lenderContent}>
@@ -410,7 +418,7 @@ const HomePage = () => {
             <View style={styles.testimonialHeader}>
               <View style={styles.testimonialAvatarContainer}>
                 <Image
-                  source={{ uri: testimonial.avatar }}
+                  source={{uri: testimonial.avatar}}
                   style={styles.testimonialAvatar}
                 />
                 <View style={styles.testimonialVerifiedBadge}>
@@ -442,7 +450,7 @@ const HomePage = () => {
   );
 
   return (
-    <SafeAreaWrapper backgroundColor="#FFFFFF" statusBarStyle="dark-content">
+    <View style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <Header />
         <HeroSection />
@@ -452,7 +460,7 @@ const HomePage = () => {
         <BecomeALender />
         <TestimonialsSection />
       </ScrollView>
-    </SafeAreaWrapper>
+    </View>
   );
 }
 
@@ -463,10 +471,11 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: '#FFFFFF',
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
     borderBottomWidth: 1,
     borderBottomColor: '#F3F4F6',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.05,
     shadowRadius: 4,
     elevation: 2,
@@ -476,13 +485,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingTop: 20,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight + 10 : 20,
     paddingBottom: 16,
   },
   logoContainer: {
     borderRadius: 20,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
@@ -510,7 +519,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#E5E7EB',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: {width: 0, height: 1},
     shadowOpacity: 0.05,
     shadowRadius: 2,
     elevation: 1,
@@ -609,7 +618,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     marginBottom: 16,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.15,
     shadowRadius: 12,
     elevation: 8,
@@ -631,7 +640,7 @@ const styles = StyleSheet.create({
   searchButton: {
     borderRadius: 16,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.2,
     shadowRadius: 12,
     elevation: 8,
@@ -672,7 +681,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 20,
-    paddingHorizontal: 2,
+    paddingHorizontal:2,
     borderRadius: 25,
     gap: 2,
   },
@@ -789,7 +798,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignItems: 'center',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.08,
     shadowRadius: 16,
     elevation: 4,
@@ -828,7 +837,7 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 20,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.06,
     shadowRadius: 12,
     elevation: 3,
@@ -869,7 +878,7 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 20,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.06,
     shadowRadius: 12,
     elevation: 3,
@@ -977,7 +986,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
     gap: 8,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.2,
     shadowRadius: 12,
     elevation: 5,
@@ -997,7 +1006,7 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 20,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.06,
     shadowRadius: 12,
     elevation: 3,
