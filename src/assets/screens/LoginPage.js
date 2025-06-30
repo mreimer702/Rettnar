@@ -1,9 +1,10 @@
-import React, {useState} from 'react';
-import {View, Text, TextInput, TouchableOpacity} from 'react-native';
-import {ChevronLeft} from 'react-native-feather';
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity } from 'react-native';
+import { ChevronLeft } from 'react-native-feather';
+import SafeAreaWrapper from '../components/SafeAreaWrapper';
 import styles from '../styles/LoginStyle';
 
-export default function LoginPage({navigation}) {
+export default function LoginPage({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -20,7 +21,7 @@ export default function LoginPage({navigation}) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({email, password}),
+        body: JSON.stringify({ email, password }),
       });
 
       const data = await response.json();
@@ -39,7 +40,7 @@ export default function LoginPage({navigation}) {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaWrapper backgroundColor="#FFFFFF" statusBarStyle="dark-content">
       {/* Header Section with Back Button */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -81,6 +82,6 @@ export default function LoginPage({navigation}) {
           </TouchableOpacity>
         </View>
       </View>
-    </View>
+    </SafeAreaWrapper>
   );
 }

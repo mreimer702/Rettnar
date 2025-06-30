@@ -1,9 +1,10 @@
-import React, {useState} from 'react';
-import {View, Text, TextInput, TouchableOpacity} from 'react-native';
-import {ChevronLeft} from 'react-native-feather';
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity } from 'react-native';
+import { ChevronLeft } from 'react-native-feather';
+import SafeAreaWrapper from '../components/SafeAreaWrapper';
 import styles from '../styles/RegisterStyle';
 
-export default function RegisterPage({navigation}) {
+export default function RegisterPage({ navigation }) {
   // State to store user input for registration
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -28,8 +29,8 @@ export default function RegisterPage({navigation}) {
     try {
       const response = await fetch('https://your-backend-api.com/register', {
         method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({email, password}),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
       });
       const data = await response.json();
 
@@ -46,7 +47,7 @@ export default function RegisterPage({navigation}) {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaWrapper backgroundColor="#FFFFFF" statusBarStyle="dark-content">
       {/* Header with Back Button */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -102,6 +103,6 @@ export default function RegisterPage({navigation}) {
           <Text style={styles.primaryButtonText}>Register</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </SafeAreaWrapper>
   );
 }
