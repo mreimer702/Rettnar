@@ -4,24 +4,23 @@
     "slug": "renttar",
     "version": "1.0.0",
     "orientation": "portrait",
-    "userInterfaceStyle": "light",
-    "splash": {
-      "image": "./src/assets/Onboarding.jpg",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "icon": "./assets/images/icon.png",
+    "scheme": "myapp",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.yourcompany.renttar"
+      "supportsTablet": true
     },
-    "android": {
-      "package": "com.yourcompany.renttar"
+    "web": {
+      "bundler": "metro",
+      "output": "single",
+      "favicon": "./assets/images/favicon.png"
     },
-    "plugins": [
-      "expo-image-picker"
-    ]
+    "plugins": ["expo-router", "expo-font", "expo-web-browser","expo-image-picker"],
+    "experiments": {
+      "typedRoutes": true
+    }
   }
 }
+
+
