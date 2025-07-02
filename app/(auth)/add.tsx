@@ -34,7 +34,7 @@ export default function AddItemScreen() {
       }
     }
 
-    if (!permission.granted) {
+    if (!permission || !permission.granted) {
       Alert.alert('Permission Required', 'Camera permission is needed to take photos');
       return;
     }
