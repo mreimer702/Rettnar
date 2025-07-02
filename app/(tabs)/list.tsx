@@ -17,6 +17,12 @@ export default function ListItemScreen() {
     price: '',
     location: '',
     images: [] as string[],
+    address: '',
+    city: '',
+    state: '',
+    country: '',
+    zip: '',
+    rateType: 'daily', // Added rateType property with default value
   });
 
   const handleInputChange = (field: string, value: string) => {
@@ -49,7 +55,6 @@ export default function ListItemScreen() {
       'Item Published!',
       'Your item has been successfully listed on Renttar',
       [{ text: 'OK', onPress: () => {
-        // Reset form
         setItemData({
           title: '',
           description: '',
@@ -57,6 +62,12 @@ export default function ListItemScreen() {
           price: '',
           location: '',
           images: [],
+          address: '',
+          city: '',
+          state: '',
+          country: '',
+          zip: '',
+          rateType: 'daily', // Reset rateType as well
         });
       }}]
     );
@@ -158,7 +169,7 @@ export default function ListItemScreen() {
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Daily Rate *</Text>
+              <Text style={styles.label}>Rate *</Text>
               <View style={styles.priceContainer}>
                 <DollarSign size={20} color="#64748B" strokeWidth={2} />
                 <TextInput
@@ -169,23 +180,98 @@ export default function ListItemScreen() {
                   placeholderTextColor="#94A3B8"
                   keyboardType="numeric"
                 />
-                <Text style={styles.priceUnit}>per day</Text>
               </View>
+
+              {/* Radio Buttons for Rate Type */}
+  <View style={styles.rateTypeContainer}>
+    <TouchableOpacity
+      style={styles.radioOption}
+      onPress={() => handleInputChange('rateType', 'daily')}
+    >
+      <View style={styles.radioCircle}>
+        {itemData.rateType === 'daily' && <View style={styles.radioDot} />}
+      </View>
+      <Text style={styles.radioLabel}>Daily</Text>
+    </TouchableOpacity>
+
+    <TouchableOpacity
+      style={styles.radioOption}
+      onPress={() => handleInputChange('rateType', 'hourly')}
+    >
+      <View style={styles.radioCircle}>
+        {itemData.rateType === 'hourly' && <View style={styles.radioDot} />}
+      </View>
+      <Text style={styles.radioLabel}>Hourly</Text>
+    </TouchableOpacity>
+  </View>
             </View>
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Location</Text>
-              <View style={styles.locationContainer}>
-                <MapPin size={20} color="#64748B" strokeWidth={2} />
-                <TextInput
-                  style={styles.locationInput}
-                  value={itemData.location}
-                  onChangeText={(value) => handleInputChange('location', value)}
-                  placeholder="Address or area (optional)"
-                  placeholderTextColor="#94A3B8"
-                />
-              </View>
-            </View>
+{/* Location */}
+<View style={styles.inputGroup}>
+  <Text style={styles.label}>Location *</Text>
+
+  {/* Address */}
+  <View style={styles.locationContainer}>
+    <MapPin size={20} color="#64748B" strokeWidth={2} />
+    <TextInput
+      style={styles.locationInput}
+      value={itemData.address}
+      onChangeText={(value) => handleInputChange('address', value)}
+      placeholder="Street address (optional)"
+      placeholderTextColor="#94A3B8"
+    />
+  </View>
+
+  {/* City */}
+  <View style={styles.locationContainer}>
+    <MapPin size={20} color="#64748B" strokeWidth={2} />
+    <TextInput
+      style={styles.locationInput}
+      value={itemData.city}
+      onChangeText={(value) => handleInputChange('city', value)}
+      placeholder="City"
+      placeholderTextColor="#94A3B8"
+    />
+  </View>
+
+  {/* State / Province */}
+  <View style={styles.locationContainer}>
+    <MapPin size={20} color="#64748B" strokeWidth={2} />
+    <TextInput
+      style={styles.locationInput}
+      value={itemData.state}
+      onChangeText={(value) => handleInputChange('state', value)}
+      placeholder="State/Province (optional)"
+      placeholderTextColor="#94A3B8"
+    />
+  </View>
+
+  {/* Country */}
+  <View style={styles.locationContainer}>
+    <MapPin size={20} color="#64748B" strokeWidth={2} />
+    <TextInput
+      style={styles.locationInput}
+      value={itemData.country}
+      onChangeText={(value) => handleInputChange('country', value)}
+      placeholder="Country"
+      placeholderTextColor="#94A3B8"
+    />
+  </View>
+
+  {/* Zip Code */}
+  <View style={styles.locationContainer}>
+    <MapPin size={20} color="#64748B" strokeWidth={2} />
+    <TextInput
+      style={styles.locationInput}
+      value={itemData.zip}
+      onChangeText={(value) => handleInputChange('zip', value)}
+      placeholder="ZIP/Postal Code (optional)"
+      placeholderTextColor="#94A3B8"
+      keyboardType="numeric"
+    />
+  </View>
+</View>
+
           </View>
 
           {/* Availability */}
@@ -233,6 +319,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FAFBFC',
+  },
+  rateTypeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 12,
+    marginBottom: 4,
+    gap: 24,
   },
   headerGradient: {
     paddingHorizontal: 24,
@@ -415,6 +508,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 8,
     elevation: 2,
+     marginBottom: 12, 
   },
   locationInput: {
     flex: 1,
@@ -473,16 +567,44 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 12,
-    elevation: 6,
-  },
-  publishGradient: {
-    paddingVertical: 18,
-    borderRadius: 16,
     alignItems: 'center',
   },
   publishButtonText: {
     fontSize: 18,
     fontFamily: 'Inter-Bold',
     color: '#FFFFFF',
+  },
+  radioOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 24,
+  },
+  radioCircle: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: '#3B82F6',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 8,
+  },
+  radioDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#3B82F6',
+  },
+  radioLabel: {
+    fontSize: 16,
+    fontFamily: 'Inter-Regular',
+    color: '#1E293B',
+  },
+  publishGradient: {
+    paddingVertical: 18,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
   },
 });

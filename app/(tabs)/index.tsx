@@ -7,12 +7,10 @@ import { LinearGradient } from 'expo-linear-gradient';
 const { width } = Dimensions.get('window');
 
 const categories = [
-  { id: 1, name: 'Photography', icon: '📸', color: '#FF6B6B', gradient: ['#FF6B6B', '#FF8E8E'] as const },
-  { id: 2, name: 'Tools', icon: '🔧', color: '#4ECDC4', gradient: ['#4ECDC4', '#6EE7E0'] as const },
-  { id: 3, name: 'Sports', icon: '⚽', color: '#45B7D1', gradient: ['#45B7D1', '#6BC5D8'] as const },
-  { id: 4, name: 'Electronics', icon: '💻', color: '#96CEB4', gradient: ['#96CEB4', '#B0D8C4'] as const },
-  { id: 5, name: 'Events', icon: '🎉', color: '#FECA57', gradient: ['#FECA57', '#FFD76F'] as const },
-  { id: 6, name: 'Vehicles', icon: '🚗', color: '#FF9FF3', gradient: ['#FF9FF3', '#FFB3F6'] as const },
+
+  { id: 1, name: 'Equipment', icon: '🔧', color: '#4ECDC4', gradient: ['#4ECDC4', '#6EE7E0'] as const },
+  { id: 2, name: 'Venues', icon: '🎉', color: '#FECA57', gradient: ['#FECA57', '#FFD76F'] as const },
+  { id: 3, name: 'Vehicles', icon: '🚗', color: '#FF9FF3', gradient: ['#FF9FF3', '#FFB3F6'] as const },
 ];
 
 const featuredItems = [
@@ -30,7 +28,7 @@ const featuredItems = [
     },
     distance: '0.8 km',
     instantBook: true,
-    category: 'Photography',
+    category: 'Equipment',
   },
   {
     id: '2',
@@ -46,25 +44,42 @@ const featuredItems = [
     },
     distance: '1.2 km',
     instantBook: true,
-    category: 'Electronics',
+    category: 'Equipment',
   },
   {
     id: '3',
-    title: 'Professional Drone 4K',
-    price: 65,
-    rating: 4.7,
-    reviews: 156,
-    image: 'https://images.pexels.com/photos/442587/pexels-photo-442587.jpeg?auto=compress&cs=tinysrgb&w=800',
+    title: 'Modern Loft Event Space',
+    price: 120,
+    rating: 4.9,
+    reviews: 202,
+    image: 'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=800',
     owner: {
-      name: 'Mike Johnson',
-      avatar: 'https://images.pexels.com/photos/1043474/pexels-photo-1043474.jpeg?auto=compress&cs=tinysrgb&w=100',
+      name: 'Emma Rodriguez',
+      avatar: 'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=100',
+      verified: true,
+    },
+    distance: '3.4 km',
+    instantBook: true,
+    category: 'Venues',
+  },
+  {
+    id: '4',
+    title: 'Tesla Model 3 - Long Range',
+    price: 95,
+    rating: 4.8,
+    reviews: 143,
+    image: 'https://images.pexels.com/photos/1402787/pexels-photo-1402787.jpeg?auto=compress&cs=tinysrgb&w=800',
+    owner: {
+      name: 'Daniel Wu',
+      avatar: 'https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=100',
       verified: false,
     },
-    distance: '2.1 km',
+    distance: '2.7 km',
     instantBook: false,
-    category: 'Photography',
+    category: 'Vehicles',
   },
 ];
+
 
 const trendingItems = [
   {
@@ -79,16 +94,17 @@ const trendingItems = [
     title: 'DJ Controller Set',
     price: 55,
     image: 'https://images.pexels.com/photos/1190297/pexels-photo-1190297.jpeg?auto=compress&cs=tinysrgb&w=400',
-    category: 'Events',
+    category: 'Equipment',
   },
   {
     id: '6',
-    title: 'Mountain Bike',
-    price: 35,
-    image: 'https://images.pexels.com/photos/100582/pexels-photo-100582.jpeg?auto=compress&cs=tinysrgb&w=400',
-    category: 'Sports',
+    title: 'Modern Studio Space',
+    price: 140,
+    image: 'https://images.pexels.com/photos/37347/office-sitting-room-executive-sitting.jpg?auto=compress&cs=tinysrgb&w=400',
+    category: 'Venues',
   },
 ];
+
 
 export default function ExploreScreen() {
   const [searchQuery, setSearchQuery] = useState('');
