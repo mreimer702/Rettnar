@@ -109,7 +109,7 @@ class Message(Base):  # <------------------------------------------ Message Mode
 
 class Payment(Base):  # <------------------------------------------ Payment Model
     __tablename__ = "payment"
-
+#  ---------------------------------------------------------------------          MARK: Will need to look into this asap 
     payment_id: Mapped[int] = mapped_column(primary_key=True)
     amount: Mapped[float] = mapped_column(nullable=False)
     paid_at: Mapped[datetime] = mapped_column(default=datetime.utcnow, nullable=False)
