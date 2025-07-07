@@ -12,16 +12,12 @@ roles_schema = RoleSchema(many=True)
 class UserSchema(ma.SQLAlchemyAutoSchema):  # <------------------------------------------ User Schema
     class Meta:
         model = User
+        exclude = ['password_hash']
 
 user_schema = UserSchema()
 users_schema = UserSchema(many=True)
 
-class UserRegistrationSchema(ma.SQLAlchemyAutoSchema):
-    
-    class Meta:
-        model = User
-        load_instance = False
-        exclude = ['password_hash', 'user_id', 'created_at', 'updated_at', 'is_active']
+class UserRegistrationSchema(ma.Schema):
 
     confirmed_password = fields.Str(required=True)
     address = fields.Str(validate=validate.Length(max=100))
@@ -38,12 +34,7 @@ class UserRegistrationSchema(ma.SQLAlchemyAutoSchema):
         if data.get('password') != data.get('confirmed_password'):
             raise ValidationError("Passwords do not match", field_name='confirmed_password')
         
-class UserUpdateSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = User
-        load_instance = False
-        exclude = ['password_hash', 'user_id', 'created_at', 'updated_at']
-        partial = True
+class UserUpdateSchema(ma.Schema):
 
     current_password = fields.Str()
     new_password = fields.Str(validate=validate.Length(min=8, max=128))
@@ -71,6 +62,10 @@ class UserUpdateSchema(ma.SQLAlchemyAutoSchema):
             if data.get('new_password') != data.get('confirm_new_password'):
                 raise ValidationError("New passwords do not match", field_name='confirm_new_password')
             
+class LoginSchema(ma.Schema):
+    email = fields.Email(required=True)
+    password = fields.Str(required=True)
+            
 user_registration_schema = UserRegistrationSchema()
 user_update_schema = UserUpdateSchema()
-login_schema = UserSchema(only=('email', 'password'))  # <------------------------------------------ Login Schema
+login_schema = LoginSchema()

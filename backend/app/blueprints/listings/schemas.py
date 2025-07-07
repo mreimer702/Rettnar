@@ -38,13 +38,13 @@ class ListingSchema(ma.SQLAlchemyAutoSchema):
         include_relationships = True
 
     location = fields.Nested(LocationSchema)
-    images = fields.List(fields.Nested(ImageSchema), many=True, dump_only=True)
-    amenities = fields.List(fields.Nested(AmenitySchema), many=True, dump_only=True)
-    features = fields.List(fields.Nested(ListingFeatureSchema), many=True, dump_only=True)
+    images = fields.List(fields.Nested(ImageSchema), dump_only=True)
+    amenities = fields.List(fields.Nested(AmenitySchema), dump_only=True)
+    features = fields.List(fields.Nested(ListingFeatureSchema), dump_only=True)
     subcategory = fields.Nested(SubcategorySchema, dump_only=True)
 
-    amenity_ids = fields.List(fields.Int(), load_only=True, missing=[])
-    feature_data = fields.List(fields.Dict(), load_only=True, missing=[])
+    amenity_ids = fields.List(fields.Int(), load_only=True, load_default=[])
+    feature_data = fields.List(fields.Dict(), load_only=True, load_default=[])
 
 class ListingCreateSchema(ListingSchema):
     titled = fields.Str(required=True, validate=validate.Length(min=1, max=100))
@@ -57,11 +57,11 @@ class ListingCreateSchema(ListingSchema):
     state = fields.Str(required=True, validate=validate.Length(min=1, max=100))
     country = fields.Str(required=True, validate=validate.Length(min=1, max=100))
     zip_code = fields.Str(required=True, validate=validate.Length(min=1, max=20))
-    latitude = fields.Float(missing=None)
-    longitude = fields.Float(missing=None)
+    latitude = fields.Float(load_default=None)
+    longitude = fields.Float(load_default=None)
 
-    amenity_ids = fields.List(fields.Int(), missing=[])
-    features = fields.List(fields.Dict(), missing=[])
+    amenity_ids = fields.List(fields.Int(), load_default=[])
+    features = fields.List(fields.Dict(), load_default=[])
 
 class ListingUpdateSchema(ListingSchema):
     titled = fields.Str(validate=validate.Length(min=1, max=100))
@@ -77,8 +77,8 @@ class ListingUpdateSchema(ListingSchema):
     latitude = fields.Float()
     longitude = fields.Float()
 
-    amenity_ids = fields.List(fields.Int(), missing=None)
-    features = fields.List(fields.Dict(), missing=None)
+    amenity_ids = fields.List(fields.Int(), load_default=None)
+    features = fields.List(fields.Dict(), load_default=None)
 
 listing_schema = ListingSchema()
 listings_schema = ListingSchema(many=True)

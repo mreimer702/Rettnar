@@ -30,7 +30,7 @@ class DeliveryNotificationSchema(ma.SQLAlchemyAutoSchema):
 
 class DeliveryNotificationCreateSchema(ma.Schema):
     message = fields.Str(required=True, validate=validate.Length(min=1, max=1000))
-    type = fields.Str(validate=validate.OneOf(['info', 'warning', 'success', 'error']), missing='info')
+    type = fields.Str(validate=validate.OneOf(['info', 'warning', 'success', 'error']), load_default='info')
     user_id = fields.Int(required=True)
     delivery_id = fields.Int(required=True)
 
