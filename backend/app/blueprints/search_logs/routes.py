@@ -56,3 +56,158 @@ def create_search_log(user_id):
 
     return search_log_schema.jsonify(search_log), 201
 
+@search_logs_bp.route('/', methods=['GET'])
+@user_token_required
+def get_user_search_logs(user_id):
+    """Get search logs for the authenticated user"""
+    page = request.args.get('page', 1, type=int)
+    per_page = min(request.args.get('per_page', 20, type=int), 100)
+    
+    query = select(SearchLog).where(SearchLog.user_id == user_id).order_by(desc(SearchLog.searched_at))
+    
+    total = db.session.execute(
+        select(func.count(SearchLog.search_log_id)).where(SearchLog.user_id == user_id)
+    ).scalar()
+
+    offset = (page - 1) * per_page
+    query = query.offset(offset).limit(per_page)
+
+    search_logs = db.session.execute(query).scalars().all()
+
+    pagination_info = {
+        'page': page,
+        'per_page': per_page,
+        'total': total,
+        'total_pages': (total + per_page - 1) // per_page,
+        'has_prev': page > 1,
+        'has_next': page * per_page < total
+    }
+
+    return jsonify({
+        'search_logs': search_logs_schema.dump(search_logs),
+        'pagination': pagination_info
+    }), 200
+
+@search_logs_bp.route('/recent', methods=['GET'])
+@user_token_required
+@cache.cached(timeout=300)
+def get_recent_searches(user_id):
+    """Get recent unique search keywords for the user"""
+    limit = request.args.get('limit', 10, type=int)
+    limit = min(limit, 50)  # Cap at 50
+    
+    # Get distinct keywords from recent searches
+    query = (
+        select(SearchLog.keyword, func.max(SearchLog.searched_at).label('last_searched'))
+        .where(SearchLog.user_id == user_id)
+        .group_by(SearchLog.keyword)
+        .order_by(desc('last_searched'))
+        .limit(limit)
+    )
+    
+    results = db.session.execute(query).all()
+    
+    recent_searches = [
+        {'keyword': result.keyword, 'last_searched': result.last_searched}
+        for result in results
+    ]
+    
+    return jsonify({'recent_searches': recent_searches}), 200
+
+@search_logs_bp.route('/analytics', methods=['GET'])
+@user_token_required
+def get_search_analytics(user_id):
+    """Get search analytics for the user"""
+    days = request.args.get('days', 30, type=int)
+    days = min(days, 365)  # Cap at 1 year
+    
+    start_date = datetime.utcnow() - timedelta(days=days)
+    
+    # Get top search keywords with counts
+    query = (
+        select(
+            SearchLog.keyword,
+            func.count(SearchLog.search_log_id).label('search_count'),
+            func.max(SearchLog.searched_at).label('last_searched')
+        )
+        .where(SearchLog.user_id == user_id, SearchLog.searched_at >= start_date)
+        .group_by(SearchLog.keyword)
+        .order_by(desc('search_count'))
+        .limit(20)
+    )
+    
+    results = db.session.execute(query).all()
+    
+    analytics = [
+        {
+            'keyword': result.keyword,
+            'search_count': result.search_count,
+            'last_searched': result.last_searched
+        }
+        for result in results
+    ]
+    
+    return jsonify({'analytics': analytics}), 200
+
+@search_logs_bp.route('/popular', methods=['GET'])
+@cache.cached(timeout=3600)  # Cache for 1 hour
+def get_popular_searches():
+    """Get popular search keywords across all users"""
+    days = request.args.get('days', 7, type=int)
+    days = min(days, 30)  # Cap at 30 days
+    limit = request.args.get('limit', 10, type=int)
+    limit = min(limit, 50)  # Cap at 50
+    
+    start_date = datetime.utcnow() - timedelta(days=days)
+    
+    query = (
+        select(
+            SearchLog.keyword,
+            func.count(SearchLog.search_log_id).label('search_count')
+        )
+        .where(SearchLog.searched_at >= start_date)
+        .group_by(SearchLog.keyword)
+        .order_by(desc('search_count'))
+        .limit(limit)
+    )
+    
+    results = db.session.execute(query).all()
+    
+    popular_searches = [
+        {'keyword': result.keyword, 'search_count': result.search_count}
+        for result in results
+    ]
+    
+    return jsonify({'popular_searches': popular_searches}), 200
+
+@search_logs_bp.route('/<int:search_log_id>', methods=['DELETE'])
+@user_token_required
+@limiter.limit("10 per minute")
+def delete_search_log(user_id, search_log_id):
+    """Delete a specific search log entry"""
+    search_log = db.session.execute(
+        select(SearchLog).where(
+            SearchLog.search_log_id == search_log_id,
+            SearchLog.user_id == user_id
+        )
+    ).scalars().first()
+
+    if not search_log:
+        return jsonify({'error': 'Search log not found'}), 404
+
+    db.session.delete(search_log)
+    db.session.commit()
+
+    return jsonify({'message': 'Search log deleted successfully'}), 200
+
+@search_logs_bp.route('/clear', methods=['DELETE'])
+@user_token_required
+@limiter.limit("5 per minute")
+def clear_search_history(user_id):
+    """Clear all search history for the user"""
+    db.session.execute(
+        SearchLog.__table__.delete().where(SearchLog.user_id == user_id)
+    )
+    db.session.commit()
+
+    return jsonify({'message': 'Search history cleared successfully'}), 200
