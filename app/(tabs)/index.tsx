@@ -3,12 +3,15 @@ import { View, Text, ScrollView, TouchableOpacity, StyleSheet, TextInput, Image,
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MapPin, Search, Filter, Star, Heart, Zap, TrendingUp, Clock, Shield } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
+
+const router = useRouter();
 
 const { width } = Dimensions.get('window');
 
 const categories = [
 
-  { id: 1, name: 'Equipment', icon: '🔧', color: '#4ECDC4', gradient: ['#4ECDC4', '#6EE7E0'] as const },
+  { id: 1, name: 'Tools', icon: '🔧', color: '#4ECDC4', gradient: ['#4ECDC4', '#6EE7E0'] as const },
   { id: 2, name: 'Venues', icon: '🎉', color: '#FECA57', gradient: ['#FECA57', '#FFD76F'] as const },
   { id: 3, name: 'Vehicles', icon: '🚗', color: '#FF9FF3', gradient: ['#FF9FF3', '#FFB3F6'] as const },
 ];
@@ -106,7 +109,7 @@ const trendingItems = [
 ];
 
 
-export default function ExploreScreen() {
+export default function HomeScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
@@ -170,22 +173,30 @@ export default function ExploreScreen() {
           <Text style={styles.sectionTitle}>Browse Categories</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoriesScroll}>
             {categories.map((category) => (
-              <TouchableOpacity
-                key={category.id}
-                style={styles.categoryCard}
-                onPress={() => setSelectedCategory(category.name)}
-              >
-                <LinearGradient
-                  colors={[...category.gradient]}
-                  style={styles.categoryGradient}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                >
-                  <Text style={styles.categoryEmoji}>{category.icon}</Text>
-                </LinearGradient>
-                <Text style={styles.categoryName}>{category.name}</Text>
-              </TouchableOpacity>
-            ))}
+  <TouchableOpacity
+    key={category.id}
+    style={styles.categoryCard}
+    onPress={() => {
+      if (category.name === 'Tools') {
+        router.push('/features/tools/Tools');
+      } else if (category.name === 'Venues') {
+        router.push('/features/venues/Venues');
+      } else if (category.name === 'Vehicles') {
+        router.push('/features/vehicles/Vehicles');
+      }
+    }} // Navigate to the matching route
+  >
+    <LinearGradient
+      colors={[...category.gradient]}
+      style={styles.categoryGradient}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+    >
+      <Text style={styles.categoryEmoji}>{category.icon}</Text>
+    </LinearGradient>
+    <Text style={styles.categoryName}>{category.name}</Text>
+  </TouchableOpacity>
+))}
           </ScrollView>
         </View>
 

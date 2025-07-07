@@ -46,7 +46,7 @@ export default function ListItemScreen() {
   };
 
   const handlePublishItem = () => {
-    if (!itemData.title || !itemData.description || !itemData.category || !itemData.price) {
+    if (!itemData.images || !itemData.title || !itemData.description || !itemData.category || !itemData.price || !itemData.city || !itemData.country) {
       Alert.alert('Missing Information', 'Please fill in all required fields');
       return;
     }
@@ -89,7 +89,8 @@ export default function ListItemScreen() {
         <View style={styles.form}>
           {/* Photos Section */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Photos</Text>
+            <Text style={styles.sectionTitle}>Photos *</Text>
+            
             <Text style={styles.sectionSubtitle}>Add up to 8 photos to showcase your item</Text>
             
             <View style={styles.photosContainer}>
