@@ -12,6 +12,7 @@ const { width } = Dimensions.get('window');
 const categories = [
 
   { id: 1, name: 'Tools', icon: '🔧', color: '#4ECDC4', gradient: ['#4ECDC4', '#6EE7E0'] as const },
+
   { id: 2, name: 'Venues', icon: '🎉', color: '#FECA57', gradient: ['#FECA57', '#FFD76F'] as const },
   { id: 3, name: 'Vehicles', icon: '🚗', color: '#FF9FF3', gradient: ['#FF9FF3', '#FFB3F6'] as const },
 ];
@@ -109,7 +110,9 @@ const trendingItems = [
 ];
 
 
+
 export default function HomeScreen() {
+
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
