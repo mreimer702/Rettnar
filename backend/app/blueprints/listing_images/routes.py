@@ -199,7 +199,7 @@ def update_image(user_id, image_id):
         ).scalars().all()
 
         if other_images:
-            other_images.is_primary = True
+            other_images[0].is_primary = True
 
     db.session.commit()
     return image_schema.jsonify(image), 200

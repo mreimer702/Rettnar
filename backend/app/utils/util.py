@@ -52,7 +52,7 @@ def user_token_required(f):
                 data = jwt.decode(user_token, SECRET_KEY, algorithms=["HS256"])
                 user_id = data["sub"]
 
-            except jwt.exceptions.ExpriredSignatureError as e:
+            except jwt.exceptions.Exprired as e:
                 return jsonify({"message": "Token has expired!"}), 401
             except jwt.exceptions.JWTError as e:
                 return jsonify({"message": "Invalid token!"}), 401

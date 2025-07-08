@@ -43,9 +43,9 @@ def create_listing(user_id):
         title=validated_data['title'],
         description=validated_data.get('description', ''),
         price=validated_data['price'],
-        subcategory=validated_data['subcategory_id'],
+        subcategory_id=validated_data['subcategory_id'],
         owner_id=user_id,
-        location=location.location_id
+        location_id=location.location_id
     )
 
     db.session.add(listing)
@@ -208,11 +208,11 @@ def update_listing(user_id, listing_id):
 
         else:
             location = Location(
-                address=validated_data['address', ''],
-                city=validated_data['city', ''],
-                state=validated_data['state', ''],
-                country=validated_data['country', ''],
-                zip_code=validated_data['zip_code', ''],
+                address=validated_data.get('address', ''),
+                city=validated_data.get('city', ''),
+                state=validated_data.get('state', ''),
+                country=validated_data.get('country', ''),
+                zip_code=validated_data.get('zip_code', ''),
                 latitude=validated_data.get('latitude'),
                 longitude=validated_data.get('longitude')
             )
@@ -287,7 +287,7 @@ def get_user_listings(owner_id):
         'page': page,
         'per_page': per_page,
         'total': total,
-        'pages': (total + per_page - 1) // per_page,
+        'total_pages': (total + per_page - 1) // per_page,
         'has_prev': page > 1,
         'has_next': page * per_page < total
     }
@@ -319,7 +319,7 @@ def get_my_listings(user_id):
         'page': page,
         'per_page': per_page,
         'total': total,
-        'pages': (total + per_page - 1) // per_page,
+        'total_pages': (total + per_page - 1) // per_page,
         'has_prev': page > 1,
         'has_next': page * per_page < total
     }

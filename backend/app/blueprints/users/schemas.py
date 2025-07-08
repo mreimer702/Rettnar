@@ -41,6 +41,8 @@ class UserUpdateSchema(ma.Schema):
     confirm_new_password = fields.Str()
 
     first_name = fields.Str(validate=validate.Length(min=1, max=50))
+    last_name = fields.Str(validate=validate.Length(max=50))
+    phone_number = fields.Str(validate=validate.Length(max=20))
     email = fields.Email(required=True, validate=validate.Length(max=100))
 
     address = fields.Str(validate=validate.Length(max=100))

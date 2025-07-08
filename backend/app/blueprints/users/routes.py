@@ -1,6 +1,5 @@
 from flask import request, jsonify
 from sqlalchemy import select
-from typing import List, cast
 from marshmallow import ValidationError
 from app.models import User, Role, Location, db
 from app.blueprints.users.schemas import user_schema, users_schema, role_schema, roles_schema, user_update_schema
@@ -25,7 +24,7 @@ def register_user():
         return jsonify({"error": "Email already exists"}), 400
 
     hashed_password = generate_password_hash(password)
-    new_user = User(first_name=first_name, email=email, password=hashed_password)
+    new_user = User(first_name=first_name, email=email, password_hash=hashed_password)
     db.session.add(new_user)
     db.session.commit()
 
@@ -43,7 +42,7 @@ def login_user():
         return jsonify({"error": "Email and password are required"}), 400
 
     user = db.session.execute(select(User).where(User.email == email)).scalars().first()
-    if not user or not check_password_hash(user.password, password):
+    if not user or not check_password_hash(user.password_hash, password):
         return jsonify({"error": "Invalid email or password"}), 401
 
     token = encode_user_token(user.user_id)
