@@ -11,5 +11,5 @@ export default function FeaturesLayout() {
   );
 }
 export const unstable_settings = {
-  initialRouteName: '(tabs)/index',
+  initialRouteName: '(tabs)',
 };

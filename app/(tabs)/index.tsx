@@ -126,22 +126,36 @@ export default function HomeScreen() {
           <Text style={styles.subGreeting}>Find anything you need, anywhere you are</Text>
         </View>
 
-        {/* Search Bar */}
-        <View style={styles.searchSection}>
-          <View style={styles.searchContainer}>
-            <Search size={20} color="#64748B" strokeWidth={2} />
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search for items, tools, gear..."
-              placeholderTextColor="#94A3B8"
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-            />
-          </View>
-          <TouchableOpacity style={styles.filterButton}>
-            <Filter size={20} color="#3B82F6" strokeWidth={2} />
-          </TouchableOpacity>
-        </View>
+{/* Search Bar */}
+<View style={styles.searchSection}>
+  {/* Search input */}
+  <View style={styles.searchContainer}>
+    <Search size={20} color="#64748B" strokeWidth={2} />
+    <TextInput
+      style={styles.searchInput}
+      placeholder="Search for items, tools, gear..."
+      placeholderTextColor="#94A3B8"
+      value={searchQuery}
+      onChangeText={setSearchQuery}
+    />
+  </View>
+
+  {/* Search button */}
+  <TouchableOpacity
+    style={styles.searchButton}
+    onPress={() => router.push('/features/SearchResult' as any)}
+    activeOpacity={0.8}
+  >
+    <Text style={styles.searchButtonText}>Go</Text>
+  </TouchableOpacity>
+
+  {/* Filter button */}
+  <TouchableOpacity style={styles.filterButton}>
+    <Filter size={20} color="#3B82F6" strokeWidth={2} />
+  </TouchableOpacity>
+</View>
+
+
 
         {/* Quick Stats */}
         <View style={styles.statsContainer}>
@@ -358,6 +372,19 @@ const styles = StyleSheet.create({
     color: '#1E293B',
     marginLeft: 12,
   },
+  searchButton: {
+    backgroundColor: '#3B82F6',
+    paddingHorizontal: 20,
+    paddingVertical: 14,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 2,
+  },
   filterButton: {
     backgroundColor: '#FFFFFF',
     paddingHorizontal: 16,
@@ -372,6 +399,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 8,
     elevation: 2,
+  },
+  searchButtonText: {
+    fontSize: 16,
+    fontFamily: 'Inter-SemiBold',
+    color: '#FFFFFF',
   },
   statsContainer: {
     flexDirection: 'row',

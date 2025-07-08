@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, TextInput, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Search, Filter, Star, MapPin, SlidersHorizontal, Grid3x3 as Grid3X3, List } from 'lucide-react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 
 
 // Backend Integration Note:
@@ -86,8 +88,8 @@ const filters = [
   { id: 4, name: 'Category', icon: '📂', active: false },
   { id: 5, name: 'Instant Book', icon: '⚡', active: false },
 ];
-
 export default function SearchScreen() {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState<string[]>(['Distance']);
@@ -108,24 +110,30 @@ export default function SearchScreen() {
         <Text style={styles.subtitle}>Find exactly what you need</Text>
       </View>
 
-      <View style={styles.searchSection}>
-        <View style={styles.searchContainer}>
-          <Search size={20} color="#64748B" strokeWidth={2} />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search for items, tools, gear..."
-            placeholderTextColor="#94A3B8"
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-          />
-        </View>
-        <TouchableOpacity 
-          style={[styles.filterButton, showFilters && styles.filterButtonActive]}
-          onPress={() => setShowFilters(!showFilters)}
-        >
-          <SlidersHorizontal size={20} color={showFilters ? '#FFFFFF' : '#3B82F6'} strokeWidth={2} />
-        </TouchableOpacity>
-      </View>
+  <View style={styles.searchBarRow}>
+  <View style={styles.searchContainer}>
+    <Ionicons name="search" size={20} color="#64748B" style={{ marginRight: 8 }} />
+    <TextInput
+      style={styles.searchInput}
+      placeholder="Search for items, tools, gear..."
+      placeholderTextColor="#94A3B8"
+      value={searchQuery}
+      onChangeText={setSearchQuery}
+    />
+  </View>
+
+  <TouchableOpacity
+    style={styles.searchButtonInline}
+    onPress={() => router.push('/features/SearchResult' as any)}
+    activeOpacity={0.8}
+  >
+    <Text style={styles.searchButtonText}>Go</Text>
+  </TouchableOpacity>
+
+  <TouchableOpacity style={styles.filterButton}>
+    <Ionicons name="filter" size={20} color="#3B82F6" />
+  </TouchableOpacity>
+</View>
 
       {showFilters && (
         <View style={styles.filtersContainer}>
@@ -237,6 +245,22 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FAFBFC',
+  },
+  searchBarRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    marginBottom: 16,
+    gap: 12,
+  },
+  searchButtonInline: {
+    backgroundColor: '#3B82F6',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 8,
   },
   header: {
     paddingHorizontal: 24,
@@ -518,6 +542,11 @@ const styles = StyleSheet.create({
   },
   bookButtonText: {
     fontSize: 14,
+    fontFamily: 'Inter-SemiBold',
+    color: '#FFFFFF',
+  },
+  searchButtonText: {
+    fontSize: 16,
     fontFamily: 'Inter-SemiBold',
     color: '#FFFFFF',
   },

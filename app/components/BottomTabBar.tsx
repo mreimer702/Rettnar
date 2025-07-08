@@ -8,7 +8,7 @@ export default function BottomTabBar() {
   const pathname = usePathname();
 
   const tabs = [
-    { name: 'Home', icon: Home, route: '/(tabs)/index' },
+    { name: 'Home', icon: Home, route: '/(tabs)' },
     { name: 'Search', icon: Search, route: '/(tabs)/search' },
     { name: 'List Item', icon: Plus, route: '/(tabs)/list' },
     { name: 'Messages', icon: MessageSquare, route: '/(tabs)/messages' },
