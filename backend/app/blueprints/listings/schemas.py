@@ -47,12 +47,12 @@ class ListingSchema(ma.SQLAlchemyAutoSchema):
     feature_data = fields.List(fields.Dict(), load_only=True, load_default=[])
 
 class ListingCreateSchema(ListingSchema):
-    titled = fields.Str(required=True, validate=validate.Length(min=1, max=100))
+    title = fields.Str(required=True, validate=validate.Length(min=1, max=100))
     description = fields.Str(validate=validate.Length(max=1000))
     price = fields.Int(required=True, validate=validate.Range(min=0))
     subcategory_id = fields.Int(required=True)
 
-    adress = fields.Str(required=True, validate=validate.Length(min=1, max=200))
+    address = fields.Str(required=True, validate=validate.Length(min=1, max=200))
     city = fields.Str(required=True, validate=validate.Length(min=1, max=100))
     state = fields.Str(required=True, validate=validate.Length(min=1, max=100))
     country = fields.Str(required=True, validate=validate.Length(min=1, max=100))
@@ -64,12 +64,12 @@ class ListingCreateSchema(ListingSchema):
     features = fields.List(fields.Dict(), load_default=[])
 
 class ListingUpdateSchema(ListingSchema):
-    titled = fields.Str(validate=validate.Length(min=1, max=100))
+    title = fields.Str(validate=validate.Length(min=1, max=100))
     description = fields.Str(validate=validate.Length(max=1000))
     price = fields.Int(validate=validate.Range(min=0))
     subcategory_id = fields.Int()
 
-    adress = fields.Str(validate=validate.Length(min=1, max=200))
+    address = fields.Str(validate=validate.Length(min=1, max=200))
     city = fields.Str(validate=validate.Length(min=1, max=100))
     state = fields.Str(validate=validate.Length(min=1, max=100))
     country = fields.Str(validate=validate.Length(min=1, max=100))

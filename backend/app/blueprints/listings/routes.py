@@ -122,7 +122,7 @@ def get_listings():
             )
         )
 
-    total_query = select(func.counnt(Listing.listing_id))
+    total_query = select(func.count(Listing.listing_id))
 
     if query.whereclause is not None:
         total_query = total_query.where(query.whereclause)

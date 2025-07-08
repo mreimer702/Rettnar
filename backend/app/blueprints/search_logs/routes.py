@@ -42,7 +42,7 @@ def create_search_log(user_id):
         db.session.add(location)
         db.session.flush()
 
-        location_id = location.location.id
+        location_id = location.location_id
         
     search_log = SearchLog(
         keyword=validated_data['keyword'],
