@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Image, Switch } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Settings, CreditCard as Edit3, Star, MapPin, Calendar, Heart, CreditCard, Bell, Shield, CircleHelp as HelpCircle, LogOut, Award, TrendingUp, Eye, Users } from 'lucide-react-native';
+import { Settings, CreditCard as Edit3, Star, MapPin, Calendar, Heart, CreditCard, Bell, Shield, CircleHelp as HelpCircle, LogOut, Award, TrendingUp, Eye, Users, LucideIcon } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Alert } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { createStackNavigator } from '@react-navigation/stack';
 
 const userStats = [
   { label: 'Items Rented', value: '24', color: '#3B82F6', icon: Calendar },
@@ -42,7 +46,47 @@ const recentActivity = [
 ];
 
 export default function ProfileScreen() {
+
+  type RootStackParamList = {
+  Bookings: undefined;
+  Listings: undefined;
+  PaymentMethods: undefined;
+  PrivacySecurity: undefined;
+  HelpSupport: undefined;
+};
+
+const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+
+  function handlePress(
+  item:
+    | { id: number; title: string; icon: LucideIcon; badge: string; toggle?: undefined }
+    | { id: number; title: string; icon: LucideIcon; badge?: undefined; toggle?: undefined }
+    | { id: number; title: string; icon: LucideIcon; toggle: boolean; badge?: undefined }
+): void {
+  switch (item.title) {
+    case 'My Bookings':
+      navigation.navigate('Bookings');
+      break;
+    case 'My Listings':
+      navigation.navigate('Listings');
+      break;
+    case 'Payment Methods':
+      navigation.navigate('PaymentMethods');
+      break;
+    case 'Notifications':
+      // Handled by toggle/switch
+      break;
+    case 'Privacy & Security':
+      navigation.navigate('PrivacySecurity');
+      break;
+    case 'Help & Support':
+      navigation.navigate('HelpSupport');
+      break;
+    default:
+      Alert.alert('Info', 'Action not implemented.');
+  }
+}
 
   return (
     <SafeAreaView style={styles.container}>
@@ -135,7 +179,7 @@ export default function ProfileScreen() {
           <Text style={styles.sectionTitle}>Account</Text>
           
           {menuItems.map((item) => (
-            <TouchableOpacity key={item.id} style={styles.menuItem}>
+            <TouchableOpacity key={item.id} style={styles.menuItem} onPress={() => handlePress(item)}>
               <View style={styles.menuItemLeft}>
                 <View style={styles.menuIcon}>
                   <item.icon size={20} color="#3B82F6" strokeWidth={2} />

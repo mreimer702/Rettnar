@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, TextInput, Image, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { MapPin, Search, Filter, Star, Heart, Zap, TrendingUp, Clock, Shield } from 'lucide-react-native';
+import { MapPin, Search, Filter, Star, Heart, Zap, TrendingUp, Clock, Shield, Bell } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 
@@ -12,7 +12,6 @@ const { width } = Dimensions.get('window');
 const categories = [
 
   { id: 1, name: 'Tools', icon: '🔧', color: '#4ECDC4', gradient: ['#4ECDC4', '#6EE7E0'] as const },
-
   { id: 2, name: 'Venues', icon: '🎉', color: '#FECA57', gradient: ['#FECA57', '#FFD76F'] as const },
   { id: 3, name: 'Vehicles', icon: '🚗', color: '#FF9FF3', gradient: ['#FF9FF3', '#FFB3F6'] as const },
 ];
@@ -121,13 +120,21 @@ export default function HomeScreen() {
       <ScrollView showsVerticalScrollIndicator={false} style={styles.scrollView}>
         {/* Header */}
         <View style={styles.header}>
-          <View style={styles.locationContainer}>
-            <MapPin size={18} color="#3B82F6" strokeWidth={2} />
-            <Text style={styles.locationText}>San Francisco, CA</Text>
-          </View>
-          <Text style={styles.greeting}>Discover amazing rentals</Text>
-          <Text style={styles.subGreeting}>Find anything you need, anywhere you are</Text>
-        </View>
+  {/* Top Row: Location + Bell */}
+  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+    <View style={styles.locationContainer}>
+      <MapPin size={18} color="#3B82F6" strokeWidth={2} />
+      <Text style={styles.locationText}>San Francisco, CA</Text>
+    </View>
+    <TouchableOpacity onPress={() => router.push('../features/notifications')} style={styles.bellButton}>
+      <Bell size={22} color="#3B82F6" strokeWidth={2} />
+    </TouchableOpacity>
+  </View>
+
+  <Text style={styles.greeting}>Discover amazing rentals</Text>
+  <Text style={styles.subGreeting}>Find anything you need, anywhere you are</Text>
+</View>
+
 
 {/* Search Bar */}
 <View style={styles.searchSection}>
@@ -335,6 +342,13 @@ const styles = StyleSheet.create({
     color: '#3B82F6',
     marginLeft: 6,
   },
+  
+  bellButton: {
+  padding: 8,
+  borderRadius: 999,
+  backgroundColor: '#E0F2FE',
+},
+
   greeting: {
     fontSize: 28,
     fontFamily: 'Inter-Bold',

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, TextInput, Image, Alert } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, TextInput, Image, Alert, GestureResponderEvent } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Camera, Upload, MapPin, Calendar, DollarSign, Tag, Plus, X } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -72,6 +72,16 @@ export default function ListItemScreen() {
       }}]
     );
   };
+
+  function handleSaveDraft(event: GestureResponderEvent): void {
+    // Save the current form data as a draft (could be local storage, async storage, etc.)
+    // For now, just show an alert to simulate saving
+    Alert.alert(
+      'Draft Saved',
+      'Your item draft has been saved. You can continue editing later.',
+      [{ text: 'OK' }]
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -299,6 +309,12 @@ export default function ListItemScreen() {
               <Text style={styles.tipText}>• Factor in cleaning and maintenance costs</Text>
             </View>
           </View>
+
+          <TouchableOpacity
+          style={styles.saveDraftButton}
+          onPress={handleSaveDraft}>
+          <Text style={styles.buttonText}>Save Draft</Text>
+        </TouchableOpacity>
 
           <TouchableOpacity style={styles.publishButton} onPress={handlePublishItem}>
             <LinearGradient
@@ -570,10 +586,23 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     alignItems: 'center',
   },
+  saveDraftButton: {
+    borderRadius: 16,
+    backgroundColor: '#E0E7EF',
+    paddingVertical: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
   publishButtonText: {
     fontSize: 18,
     fontFamily: 'Inter-Bold',
     color: '#FFFFFF',
+  },
+  buttonText: {
+    fontSize: 18,
+    fontFamily: 'Inter-Bold',
+    color: '#1E293B',
   },
   radioOption: {
     flexDirection: 'row',
