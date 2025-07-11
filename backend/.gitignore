@@ -1,0 +1,4 @@
+passwords.py
+venv/
+__pycache__/
+.env
