@@ -49,7 +49,9 @@ def login_user():
     return jsonify({"token": token}), 200
 
 @users_bp.route("/roles", methods=["POST"])  # <------------------------------------------ CREATE ROLE ROUTE
-def create_role():
+@user_token_required
+@limiter.limit('5 per minute')
+def create_role(user_id):
     data = request.get_json()
     name = data.get("name")
 
@@ -71,14 +73,17 @@ def get_roles():
     return roles_schema.jsonify(roles), 200
 
 @users_bp.route("/roles/<int:role_id>", methods=["GET"])  # <------------------------------------------ GET ROLE BY ID ROUTE
-def get_role(role_id):
+@user_token_required
+def get_role(role_id, user_id):
     role = db.session.execute(select(Role).where(Role.role_id == role_id)).scalars().first()
     if not role:
         return jsonify({"error": "Role not found"}), 404
     return role_schema.jsonify(role), 200
 
 @users_bp.route("/roles/<int:role_id>", methods=["PUT"])  # <------------------------------------------ UPDATE ROLE
-def update_role(role_id):
+@user_token_required
+@limiter.limit('5 per minute')
+def update_role(role_id, user_id):
     role = db.session.execute(select(Role).where(Role.role_id == role_id)).scalars().first()
     if not role:
         return jsonify({"error": "Role not found"}), 404
@@ -100,7 +105,9 @@ def update_role(role_id):
     return role_schema.jsonify(role), 200
 
 @users_bp.route("/roles/<int:role_id>", methods=["DELETE"])  # <------------------------------------------ DELETE ROLE
-def delete_role(role_id):
+@user_token_required
+@limiter.limit('5 per minute')
+def delete_role(role_id, user_id):
     role = db.session.execute(select(Role).where(Role.role_id == role_id)).scalars().first()
     if not role:
         return jsonify({"error": "Role not found"}), 404
@@ -112,7 +119,9 @@ def delete_role(role_id):
 # xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx USER ROUTES xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 @users_bp.route("/", methods=['POST'])  # <------------------------------------------ CREATE USER ROUTE
-def create_user():
+@user_token_required
+@limiter.limit('5 per minute')
+def create_user(user_id):
     try:
         incoming_data = request.get_json()
         user_data = user_schema.load(incoming_data)
@@ -150,19 +159,24 @@ def create_user():
     return user_schema.jsonify(new_user), 201
 
 @users_bp.route("/users", methods=['GET'])  # <------------------------------------------ GET ALL USERS ROUTE
-def get_users():
+@user_token_required
+@limiter.limit('20 per minute')
+def get_users(user_id):
     users = db.session.execute(select(User)).scalars().all()
     return users_schema.jsonify(users), 200
 
-@users_bp.route("/users/<int:user_id>", methods=['GET'])  # <------------------------------------------ GET USER BY ID ROUTE
-def get_user(user_id):
-    user = db.session.execute(select(User).where(User.user_id == user_id)).scalars().first()
+@users_bp.route("/users/<int:target_user_id>", methods=['GET'])  # <------------------------------------------ GET USER BY ID ROUTE
+@user_token_required
+@limiter.limit('30 per minute')
+def get_user(user_id, target_user_id):
+    user = db.session.execute(select(User).where(User.user_id == target_user_id)).scalars().first()
     if not user:
         return jsonify({"error": "User not found"}), 404
     return user_schema.jsonify(user), 200
 
 @users_bp.route("/", methods=['PUT'])
 @user_token_required  # <------------------------------------------ UPDATE USER ROUTE
+@limiter.limit('10 per minute')
 def update_user(user_id):
     user = db.session.execute(select(User).where(User.user_id == user_id)).scalars().first()
     if not user:
@@ -217,10 +231,11 @@ def update_user(user_id):
     db.session.commit()
     return user_schema.jsonify(user), 200
 
-@users_bp.route("/users/<int:user_id>", methods=['DELETE'])
+@users_bp.route("/users/<int:target_user_id>", methods=['DELETE'])
 @user_token_required  # <------------------------------------------ DELETE USER ROUTE
-def delete_user(user_id):
-    user = db.session.execute(select(User).where(User.user_id == user_id)).scalars().first()
+@limiter.limit('5 per minute')
+def delete_user(user_id, target_user_id):
+    user = db.session.execute(select(User).where(User.user_id == target_user_id)).scalars().first()
     if not user:
         return jsonify({"error": "User not found"}), 404
 
