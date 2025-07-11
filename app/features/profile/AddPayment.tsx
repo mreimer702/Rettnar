@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -7,19 +7,24 @@ import {
   ScrollView,
   Alert,
 } from 'react-native';
-import {ChevronLeft} from 'react-native-feather';
-import styles from '../styles/AddPaymentStyle';
-import BottomNavBar from '../components/BottomNavBar';
+import { StyleSheet } from 'react-native';
+import { ChevronLeft } from 'lucide-react-native';
+import { useRouter } from 'expo-router';
 
-export default function AddPaymentPage({navigation}) {
-  const [cardholderName, setCardholderName] = useState('');
-  const [cardNumber, setCardNumber] = useState('');
-  const [expirationDate, setExpirationDate] = useState('');
-  const [cvv, setCvv] = useState('');
-  const [billingAddress, setBillingAddress] = useState('');
+// Define navigation stack types
+type RootStackParamList = {
+  AddPaymentPage: undefined;
+};
 
-  // TODO: Backend Integration - Handle adding the payment method using API
-  const handleAddPaymentMethod = async () => {
+const AddPaymentPage: React.FC = () => {
+  const router = useRouter();
+  const [cardholderName, setCardholderName] = useState<string>('');
+  const [cardNumber, setCardNumber] = useState<string>('');
+  const [expirationDate, setExpirationDate] = useState<string>('');
+  const [cvv, setCvv] = useState<string>('');
+  const [billingAddress, setBillingAddress] = useState<string>('');
+
+  const handleAddPaymentMethod = async (): Promise<void> => {
     if (
       !cardholderName ||
       !cardNumber ||
@@ -32,7 +37,6 @@ export default function AddPaymentPage({navigation}) {
     }
 
     try {
-      // TODO: Replace with actual backend API URL and ensure secure payment handling
       const response = await fetch('https://your-api.com/payment-methods', {
         method: 'POST',
         headers: {
@@ -51,9 +55,8 @@ export default function AddPaymentPage({navigation}) {
 
       if (response.ok) {
         Alert.alert('Success', 'Payment method added successfully.');
-        navigation.goBack();
+        router.back();
       } else {
-        // TODO: Ensure backend provides appropriate error messages
         Alert.alert('Error', data.message || 'Failed to add payment method.');
       }
     } catch (error) {
@@ -66,7 +69,7 @@ export default function AddPaymentPage({navigation}) {
     <View style={styles.container}>
       {/* Header with Back Navigation */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        <TouchableOpacity onPress={() => router.back()}>
           <ChevronLeft width={24} height={24} />
         </TouchableOpacity>
         <Text style={styles.headerText}>Add Payment Method</Text>
@@ -83,7 +86,7 @@ export default function AddPaymentPage({navigation}) {
           onChangeText={setCardholderName}
         />
 
-        {/* Card Number Input - Backend should validate card type and number */}
+        {/* Card Number Input */}
         <Text style={styles.label}>Card Number</Text>
         <TextInput
           style={styles.input}
@@ -94,7 +97,7 @@ export default function AddPaymentPage({navigation}) {
         />
         <Text style={styles.subText}>Visa/Mastercard/AMEX supported</Text>
 
-        {/* Expiration Date Input - Ensure backend validates correct format (MM/YY) */}
+        {/* Expiration Date Input */}
         <Text style={styles.label}>Expiration Date</Text>
         <TextInput
           style={styles.input}
@@ -104,7 +107,7 @@ export default function AddPaymentPage({navigation}) {
           onChangeText={setExpirationDate}
         />
 
-        {/* CVV Input - Backend should ensure secure CVV storage */}
+        {/* CVV Input */}
         <Text style={styles.label}>CVV</Text>
         <TextInput
           style={styles.input}
@@ -116,7 +119,7 @@ export default function AddPaymentPage({navigation}) {
         />
         <Text style={styles.subText}>3 or 4 digits</Text>
 
-        {/* Billing Address Input - Backend should ensure address validation */}
+        {/* Billing Address Input */}
         <Text style={styles.label}>Billing Address</Text>
         <TextInput
           style={styles.input}
@@ -125,16 +128,73 @@ export default function AddPaymentPage({navigation}) {
           onChangeText={setBillingAddress}
         />
 
-        {/* Add Payment Button - Trigger API call to backend */}
-        <TouchableOpacity
-          style={styles.submitButton}
-          onPress={handleAddPaymentMethod}>
-          <Text style={styles.buttonText}>Add Payment Method</Text>
-        </TouchableOpacity>
-      </ScrollView>
+                {/* Submit Button */}
+      <TouchableOpacity
+        style={styles.submitButton}
+        onPress={() => {
+          // TODO: Add your submit logic here
+          alert('Payment method submitted!');
+        }}
+      >
+        <Text style={styles.submitButtonText}>Submit</Text>
+      </TouchableOpacity>
+              </ScrollView>
+            </View>
+          );
+        };
 
-      {/* Bottom Navigation Bar */}
-      <BottomNavBar active="Account" />
-    </View>
-  );
-}
+        export default AddPaymentPage;
+        
+        const styles = StyleSheet.create({
+          container: {
+            flex: 1,
+            backgroundColor: '#fff',
+            padding: 16,
+          },
+          header: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            marginBottom: 24,
+          },
+          headerText: {
+            fontSize: 20,
+            fontWeight: 'bold',
+            marginLeft: 16,
+          },
+          form: {
+            flex: 1,
+          },
+          label: {
+            fontSize: 16,
+            fontWeight: '500',
+            marginTop: 16,
+            marginBottom: 4,
+          },
+          input: {
+            borderWidth: 1,
+            borderColor: '#ccc',
+            borderRadius: 8,
+            padding: 12,
+            fontSize: 16,
+            backgroundColor: '#f9f9f9',
+          },
+          subText: {
+            fontSize: 12,
+            color: '#888',
+            marginBottom: 8,
+            marginTop: 2,
+          },
+          submitButton: {
+            backgroundColor: '#007AFF',
+            paddingVertical: 14,
+            borderRadius: 8,
+            alignItems: 'center',
+            marginTop: 24,
+            marginBottom: 32,
+          },
+          submitButtonText: {
+            color: '#fff',
+            fontSize: 16,
+            fontWeight: 'bold',
+          },
+        });

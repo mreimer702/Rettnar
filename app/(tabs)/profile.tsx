@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Image, Switch } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Settings, CreditCard as Edit3, Star, MapPin, Calendar, Heart, CreditCard, Bell, Shield, CircleHelp as HelpCircle, LogOut, Award, TrendingUp, Eye, Users, LucideIcon } from 'lucide-react-native';
+import { Settings, CreditCard as Edit3, Star, MapPin, Calendar, Heart, CreditCard, Bell, Shield, CircleHelp as HelpCircle, LogOut, Award, TrendingUp, Eye, Users, LucideIcon, FileText } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { createStackNavigator } from '@react-navigation/stack';
+import { useRouter } from 'expo-router';
+
+const router = useRouter();
 
 const userStats = [
   { label: 'Items Rented', value: '24', color: '#3B82F6', icon: Calendar },
@@ -18,10 +21,11 @@ const userStats = [
 const menuItems = [
   { id: 1, title: 'My Bookings', icon: Calendar, badge: '3' },
   { id: 2, title: 'My Listings', icon: Heart, badge: '8' },
-  { id: 3, title: 'Payment Methods', icon: CreditCard },
-  { id: 4, title: 'Notifications', icon: Bell, toggle: true },
-  { id: 5, title: 'Privacy & Security', icon: Shield },
-  { id: 6, title: 'Help & Support', icon: HelpCircle },
+  { id: 3, title: 'My Drafts', icon: FileText, badge: '5' },
+  { id: 4, title: 'Payment Methods', icon: CreditCard },
+  { id: 5, title: 'Notifications', icon: Bell, toggle: true },
+  { id: 6, title: 'Privacy & Security', icon: Shield },
+  { id: 7, title: 'Help & Support', icon: HelpCircle },
 ];
 
 const recentActivity = [
@@ -58,7 +62,7 @@ export default function ProfileScreen() {
 const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
 
-  function handlePress(
+function handlePress(
   item:
     | { id: number; title: string; icon: LucideIcon; badge: string; toggle?: undefined }
     | { id: number; title: string; icon: LucideIcon; badge?: undefined; toggle?: undefined }
@@ -66,27 +70,31 @@ const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 ): void {
   switch (item.title) {
     case 'My Bookings':
-      navigation.navigate('Bookings');
+      router.push('/features/profile/Bookings');
       break;
     case 'My Listings':
-      navigation.navigate('Listings');
+      router.push('/features/profile/Listings');
+      break;
+    case 'My Drafts':
+      router.push('/features/profile/Drafts');
       break;
     case 'Payment Methods':
-      navigation.navigate('PaymentMethods');
+      router.push('/features/profile/PaymentMethods');
       break;
     case 'Notifications':
       // Handled by toggle/switch
       break;
     case 'Privacy & Security':
-      navigation.navigate('PrivacySecurity');
+      router.push('/features/profile/PrivacySecurity');
       break;
     case 'Help & Support':
-      navigation.navigate('HelpSupport');
+      router.push('/features/profile/HelpSupport');
       break;
     default:
       Alert.alert('Info', 'Action not implemented.');
   }
 }
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -119,7 +127,8 @@ const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
                 </View>
               </View>
             </View>
-            <TouchableOpacity style={styles.editButton}>
+            <TouchableOpacity style={styles.editButton}
+            onPress={() => router.push('/features/profile/Account')}>
               <Edit3 size={16} color="#3B82F6" strokeWidth={2} />
             </TouchableOpacity>
           </View>
@@ -146,14 +155,16 @@ const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
           <Text style={styles.sectionTitle}>Quick Actions</Text>
           
           <View style={styles.quickActions}>
-            <TouchableOpacity style={styles.quickAction}>
+            <TouchableOpacity style={styles.quickAction}
+            onPress={() => router.push('/(tabs)/search')}>
               <View style={[styles.quickActionIcon, { backgroundColor: '#EFF6FF' }]}>
                 <Calendar size={20} color="#3B82F6" strokeWidth={2} />
               </View>
               <Text style={styles.quickActionText}>Book Item</Text>
             </TouchableOpacity>
             
-            <TouchableOpacity style={styles.quickAction}>
+            <TouchableOpacity style={styles.quickAction}
+            onPress={() => router.push('/(tabs)/list')}>
               <View style={[styles.quickActionIcon, { backgroundColor: '#ECFDF5' }]}>
                 <Heart size={20} color="#10B981" strokeWidth={2} />
               </View>

@@ -11,10 +11,34 @@ const { width } = Dimensions.get('window');
 
 const categories = [
 
-  { id: 1, name: 'Tools', icon: '🔧', color: '#4ECDC4', gradient: ['#4ECDC4', '#6EE7E0'] as const },
+  { id: 1, name: 'Equipment', icon: '🔧', color: '#4ECDC4', gradient: ['#4ECDC4', '#6EE7E0'] as const },
   { id: 2, name: 'Venues', icon: '🎉', color: '#FECA57', gradient: ['#FECA57', '#FFD76F'] as const },
   { id: 3, name: 'Vehicles', icon: '🚗', color: '#FF9FF3', gradient: ['#FF9FF3', '#FFB3F6'] as const },
 ];
+
+const subcategories = [
+  // Equipment
+  { id: 1, name: 'Photography', category: 'Equipment' },
+  { id: 2, name: 'Camping', category: 'Equipment' },
+  { id: 3, name: 'Sports', category: 'Equipment' },
+  { id: 4, name: 'Audio', category: 'Equipment' },
+  { id: 5, name: 'Tools', category: 'Equipment' },
+
+  // Venues
+  { id: 6, name: 'Events', category: 'Venues' },
+  { id: 7, name: 'Ceremonies', category: 'Venues' },
+  { id: 8, name: 'Workspaces', category: 'Venues' },
+  { id: 9, name: 'Studios', category: 'Venues' },
+  { id: 10, name: 'Retail', category: 'Venues' },
+
+  // Vehicles
+  { id: 11, name: 'Personal', category: 'Vehicles' },
+  { id: 12, name: 'Luxury', category: 'Vehicles' },
+  { id: 14, name: 'Adventure', category: 'Vehicles' },
+  { id: 15, name: 'Special', category: 'Vehicles' },
+  { id: 16, name: 'Commercial', category: 'Vehicles' },
+];
+
 
 const featuredItems = [
   {
@@ -140,10 +164,10 @@ export default function HomeScreen() {
 <View style={styles.searchSection}>
   {/* Search input */}
   <View style={styles.searchContainer}>
-    <Search size={20} color="#64748B" strokeWidth={2} />
+    <Search size={20} color="#64748B" strokeWidth={4} />
     <TextInput
       style={styles.searchInput}
-      placeholder="Search for items, tools, gear..."
+      placeholder="Search for items here..."
       placeholderTextColor="#94A3B8"
       value={searchQuery}
       onChangeText={setSearchQuery}
@@ -151,17 +175,13 @@ export default function HomeScreen() {
   </View>
 
   {/* Search button */}
+  {/* Navigate to search results. Check in with Backend for search query */}
   <TouchableOpacity
     style={styles.searchButton}
-    onPress={() => router.push('/features/SearchResult' as any)}
+    onPress={() => router.push('/features/SearchResult' as any)} 
     activeOpacity={0.8}
   >
     <Text style={styles.searchButtonText}>Go</Text>
-  </TouchableOpacity>
-
-  {/* Filter button */}
-  <TouchableOpacity style={styles.filterButton}>
-    <Filter size={20} color="#3B82F6" strokeWidth={2} />
   </TouchableOpacity>
 </View>
 
@@ -193,36 +213,58 @@ export default function HomeScreen() {
         </View>
 
         {/* Categories */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Browse Categories</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoriesScroll}>
-            {categories.map((category) => (
-  <TouchableOpacity
-    key={category.id}
-    style={styles.categoryCard}
-    onPress={() => {
-      if (category.name === 'Tools') {
-        router.push('/features/tools/Tools');
-      } else if (category.name === 'Venues') {
-        router.push('/features/venues/Venues');
-      } else if (category.name === 'Vehicles') {
-        router.push('/features/vehicles/Vehicles');
-      }
-    }} // Navigate to the matching route
-  >
-    <LinearGradient
-      colors={[...category.gradient]}
-      style={styles.categoryGradient}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-    >
-      <Text style={styles.categoryEmoji}>{category.icon}</Text>
-    </LinearGradient>
-    <Text style={styles.categoryName}>{category.name}</Text>
-  </TouchableOpacity>
-))}
-          </ScrollView>
-        </View>
+       <View style={styles.section}>
+  <Text style={styles.sectionTitle}>Browse Categories</Text>
+
+  <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoriesScroll}>
+    {categories.map((category) => (
+      <TouchableOpacity
+        key={category.id}
+        style={styles.categoryCard}
+        onPress={() => {
+          setSelectedCategory(prev =>
+            prev === category.name ? null : category.name
+          );
+        }}
+      >
+        <LinearGradient
+          colors={[...category.gradient]}
+          style={styles.categoryGradient}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+        >
+          <Text style={styles.categoryEmoji}>{category.icon}</Text>
+        </LinearGradient>
+        <Text style={styles.categoryName}>{category.name}</Text>
+      </TouchableOpacity>
+    ))}
+  </ScrollView>
+
+  {selectedCategory && (
+  <View style={styles.subcategoryContainer}>
+    <Text style={styles.subcategoryTitle}>{selectedCategory} Subcategories</Text>
+    <View style={styles.subcategoryList}>
+      {subcategories
+        .filter(sub => sub.category === selectedCategory)
+        .map(sub => (
+          <TouchableOpacity
+            key={sub.id}
+            style={styles.subcategoryItem}
+            onPress={() => {
+              // Convert category and subcategory to route path
+              const path = `../features/${selectedCategory.toLowerCase()}/${sub.name}`;
+              router.push(path as any);
+            }}
+          >
+            <Text style={styles.subcategoryText}>{sub.name}</Text>
+          </TouchableOpacity>
+        ))}
+    </View>
+  </View>
+)}
+
+</View>
+
 
         {/* Featured Items */}
         <View style={styles.section}>
@@ -308,7 +350,8 @@ export default function HomeScreen() {
           >
             <Text style={styles.ctaTitle}>Start Earning Today</Text>
             <Text style={styles.ctaSubtitle}>List your items and earn money when you're not using them</Text>
-            <TouchableOpacity style={styles.ctaButton}>
+            <TouchableOpacity style={styles.ctaButton}
+            onPress = {() => router.push('/(tabs)/list')}>
               <Text style={styles.ctaButtonText}>List Your First Item</Text>
             </TouchableOpacity>
           </LinearGradient>
@@ -399,21 +442,6 @@ const styles = StyleSheet.create({
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  filterButton: {
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
     shadowRadius: 8,
     elevation: 2,
   },
@@ -716,6 +744,39 @@ const styles = StyleSheet.create({
   ctaButtonText: {
     fontSize: 16,
     fontFamily: 'Inter-SemiBold',
+    color: '#3B82F6',
+  },
+  subcategoryContainer: {
+    backgroundColor: '#F1F5F9',
+    borderRadius: 16,
+    marginHorizontal: 24,
+    marginTop: 12,
+    padding: 16,
+  },
+  subcategoryTitle: {
+    fontSize: 16,
+    fontFamily: 'Inter-Bold',
+    color: '#1E293B',
+    marginBottom: 8,
+  },
+  subcategoryList: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  subcategoryItem: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    marginRight: 8,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  subcategoryText: {
+    fontSize: 13,
+    fontFamily: 'Inter-Medium',
     color: '#3B82F6',
   },
 });

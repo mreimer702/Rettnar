@@ -17,33 +17,33 @@ import { Ionicons } from '@expo/vector-icons';
 // Define navigation types
 type RootStackParamList = {
   ProductPage: { productId: number };
-  EquipmentPage: undefined;
+  AudioPage: undefined;
 };
 
-type NavigationProp = StackNavigationProp<RootStackParamList, 'EquipmentPage'>;
+type NavigationProp = StackNavigationProp<RootStackParamList, 'AudioPage'>;
 
-interface EquipmentItem {
+interface AudioItem {
   id: number;
   title: string;
   image: ImageSourcePropType;
   price: string;
 }
 
-export default function EquipmentPage() {
+export default function AudioPage() {
   const navigation = useNavigation<NavigationProp>();
-  const [equipmentList, setEquipmentList] = useState<EquipmentItem[]>([]);
+  const [audioList, setAudioList] = useState<AudioItem[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   useEffect(() => {
-    const mockData: EquipmentItem[] = [...Array(6)].map((_, i) => ({
+    const mockData: AudioItem[] = [...Array(6)].map((_, i) => ({
       id: i + 1,
-      title: `Tool ${i + 1}`,
+      title: `Audio Equipment ${i + 1}`,
       image: require('../../../assets/images/tool-placeholder.png'),
       price: '$50/day',
     }));
 
-    setEquipmentList(mockData);
+    setAudioList(mockData);
     setIsLoading(false);
   }, []);
 
@@ -55,7 +55,7 @@ export default function EquipmentPage() {
       <TouchableOpacity onPress={() => navigation.goBack()}>
         <Ionicons name="chevron-back" size={24} color="black" />
       </TouchableOpacity>
-      <Text style={styles.sectionTitle}>Tools</Text>
+      <Text style={styles.sectionTitle}>Audio Equipment</Text>
     </View>
 
     {/* Search Bar Row */}
@@ -91,7 +91,7 @@ export default function EquipmentPage() {
         <ActivityIndicator size="large" style={{ flex: 1, justifyContent: 'center' }} />
       ) : (
         <FlatList
-          data={equipmentList}
+          data={audioList}
           keyExtractor={(item) => item.id.toString()}
           numColumns={2}
           contentContainerStyle={styles.scrollContainer}
