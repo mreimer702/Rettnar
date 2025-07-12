@@ -12,9 +12,10 @@ from app.blueprints.features import features_bp
 from app.blueprints.messaging import messaging_bp
 from app.blueprints.reviews import reviews_bp
 from app.blueprints.payments import payments_bp
+from app.blueprints.bookings import bookings_bp  # Add this import
+from app.blueprints.locations import locations_bp  # Add this import
 
 def create_app(config_name):
-
     app = Flask(__name__)
     app.config.from_object(f'config.{config_name}')
 
@@ -24,6 +25,7 @@ def create_app(config_name):
     cache.init_app(app)
     limiter.init_app(app)
 
+    # Register blueprints with authentication applied
     app.register_blueprint(users_bp, url_prefix='/api/users')
     app.register_blueprint(listings_bp, url_prefix='/api/listings')
     app.register_blueprint(listing_images_bp, url_prefix='/api/listing-images')
@@ -35,5 +37,7 @@ def create_app(config_name):
     app.register_blueprint(messaging_bp, url_prefix='/api/messaging')
     app.register_blueprint(reviews_bp, url_prefix='/api/reviews')
     app.register_blueprint(payments_bp, url_prefix='/api/payments')
+    app.register_blueprint(bookings_bp, url_prefix='/api/bookings')  # Add this line
+    app.register_blueprint(locations_bp, url_prefix='/api/locations')  # Add this line
 
     return app
