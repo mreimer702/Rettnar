@@ -122,7 +122,7 @@ const DraftsPage: React.FC = () => {
         <TouchableOpacity onPress={() => navigation.goBack()}>
         <Ionicons name="chevron-back" size={24} color="black" />
       </TouchableOpacity>
-        <Text style={styles.headerText}>Saved Drafts</Text>
+        <Text style={styles.headerText}>My Drafts</Text>
       </View>
 
       {/* Section Title */}

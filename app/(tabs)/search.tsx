@@ -86,22 +86,50 @@ const filters = [
   { id: 2, name: 'Distance', icon: '📍', active: true },
   { id: 3, name: 'Rating', icon: '⭐', active: false },
   { id: 4, name: 'Category', icon: '📂', active: false },
-  { id: 5, name: 'Instant Book', icon: '⚡', active: false },
+  { id: 5, name: 'Subcategory', icon: '📂', active: false },
+  { id: 6, name: 'Instant Book', icon: '⚡', active: false },
 ];
+
+const subcategoriesMap: Record<string, string[]> = {
+  Equipment: ['Audio', 'Camping', 'Equipment', 'Photography', 'Tools'],
+  Venues: ['Studios', 'Ceremonies', 'Events', 'Retail', 'Workspaces'],
+  Vehicles: ['Adventure', 'Commericial', 'Luxury', 'Personal', 'Special'],
+};
+
 export default function SearchScreen() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState<string[]>(['Distance']);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
 
-  const handleFilterToggle = (filterName: string) => {
-    setSelectedFilters(prev => 
-      prev.includes(filterName) 
-        ? prev.filter(f => f !== filterName)
-        : [...prev, filterName]
-    );
-  };
+
+const handleFilterToggle = (filterName: string) => {
+  if (filterName === 'Category') {
+    setShowFilters(true); // force filters section open
+  }
+
+  if (Object.keys(subcategoriesMap).includes(filterName)) {
+    const isSameCategory = selectedCategory === filterName;
+    setSelectedCategory(isSameCategory ? null : filterName);
+    setSelectedSubcategory(null); // Reset subcategory when category changes
+  }
+
+  setSelectedFilters(prev =>
+    prev.includes(filterName)
+      ? prev.filter(f => f !== filterName)
+      : [...prev, filterName]
+  );
+};
+
+const filteredResults = searchResults.filter(item => {
+  const matchCategory = !selectedCategory || item.category === selectedCategory;
+  const matchSubcategory = !selectedSubcategory || item.title.includes(selectedSubcategory); // customize logic as needed
+  return matchCategory && matchSubcategory;
+});
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -130,9 +158,13 @@ export default function SearchScreen() {
     <Text style={styles.searchButtonText}>Go</Text>
   </TouchableOpacity>
 
-  <TouchableOpacity style={styles.filterButton}>
-    <Ionicons name="filter" size={20} color="#3B82F6" />
-  </TouchableOpacity>
+  <TouchableOpacity
+  style={styles.filterButton}
+  onPress={() => setShowFilters(prev => !prev)}
+>
+  <Ionicons name="filter" size={20} color="#3B82F6" />
+</TouchableOpacity>
+
 </View>
 
       {showFilters && (
@@ -160,6 +192,31 @@ export default function SearchScreen() {
         </View>
       )}
 
+      {selectedCategory && subcategoriesMap[selectedCategory] && (
+  <View style={styles.filtersContainer}>
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filtersScroll}>
+      {subcategoriesMap[selectedCategory].map((subcategory) => (
+        <TouchableOpacity
+  key={subcategory}
+  style={[
+    styles.filterChip,
+    selectedSubcategory === subcategory && styles.filterChipActive,
+  ]}
+  onPress={() => setSelectedSubcategory(prev => prev === subcategory ? null : subcategory)}
+>
+  <Text style={[
+    styles.filterText,
+    selectedSubcategory === subcategory && styles.filterTextActive
+  ]}>
+    {subcategory}
+  </Text>
+</TouchableOpacity>
+      ))}
+    </ScrollView>
+  </View>
+)}
+
+
       <View style={styles.resultsHeader}>
         <Text style={styles.resultsCount}>{searchResults.length} items found</Text>
         <View style={styles.viewControls}>
@@ -180,7 +237,7 @@ export default function SearchScreen() {
 
       <ScrollView showsVerticalScrollIndicator={false} style={styles.resultsContainer}>
         <View style={viewMode === 'grid' ? styles.gridContainer : styles.listContainer}>
-          {searchResults.map((item) => (
+          {filteredResults.map((item) => (
             <TouchableOpacity 
               key={item.id} 
               style={viewMode === 'grid' ? styles.gridItem : styles.listItem}

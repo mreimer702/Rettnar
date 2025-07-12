@@ -38,6 +38,10 @@ export default function AccountPage({ navigation }: Props) {
   const [phone, setPhone] = useState<string>('');
   const [profileImage, setProfileImage] = useState<string | null>(null);
 
+  const [currentPassword, setCurrentPassword] = useState<string>('');
+  const [newPassword, setNewPassword] = useState<string>('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState<string>('');
+
   // Placeholder function for image selection
   const pickImage = () => {
     Alert.alert('Feature Pending', 'Image upload will be implemented.');
@@ -45,6 +49,10 @@ export default function AccountPage({ navigation }: Props) {
 
   // Placeholder function for saving profile changes
   const handleSaveChanges = () => {
+    if (newPassword && newPassword !== confirmNewPassword) {
+    Alert.alert("Password Mismatch", "New passwords do not match.");
+    return;
+  }
     Alert.alert('Feature Pending', 'Save functionality will be implemented.');
   };
 
@@ -113,6 +121,37 @@ export default function AccountPage({ navigation }: Props) {
         />
         <Text style={styles.subText}>Used for account security purposes.</Text>
 
+        {/* Change Password */}
+<Text style={styles.sectionTitle}>Change Password</Text>
+
+<Text style={styles.label}>Current Password</Text>
+<TextInput
+  style={styles.input}
+  placeholder="Enter current password"
+  value={currentPassword}
+  onChangeText={setCurrentPassword}
+  secureTextEntry
+/>
+
+<Text style={styles.label}>New Password</Text>
+<TextInput
+  style={styles.input}
+  placeholder="Enter new password"
+  value={newPassword}
+  onChangeText={setNewPassword}
+  secureTextEntry
+/>
+
+<Text style={styles.label}>Confirm New Password</Text>
+<TextInput
+  style={styles.input}
+  placeholder="Confirm new password"
+  value={confirmNewPassword}
+  onChangeText={setConfirmNewPassword}
+  secureTextEntry
+/>
+
+
         {/* Save Changes Button */}
         <TouchableOpacity style={styles.saveButton} onPress={handleSaveChanges}>
           <Text style={styles.buttonText}>Save Changes</Text>
@@ -129,6 +168,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: 32,
+    marginBottom: 8,
+    color: '#222',
   },
   header: {
     flexDirection: 'row',

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, TextInput, Image } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, TextInput, Image, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Search, Send, MoveHorizontal as MoreHorizontal, ArrowLeft, Phone, Video } from 'lucide-react-native';
 
@@ -83,6 +83,7 @@ export default function MessagesScreen() {
   const [selectedConversation, setSelectedConversation] = useState<any>(null);
   const [messageText, setMessageText] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [isComposingNew, setIsComposingNew] = useState(false);
 
   const handleSendMessage = () => {
     if (!messageText.trim()) return;
@@ -108,6 +109,15 @@ export default function MessagesScreen() {
           <MoreHorizontal size={24} color="#1E293B" strokeWidth={2} />
         </TouchableOpacity>
       </View>
+
+      <View style={{ paddingHorizontal: 24, marginBottom: 16 }}>
+  <TouchableOpacity
+    style={styles.newMessageButton}
+    onPress={() => setIsComposingNew(true)}
+  >
+    <Text style={styles.newMessageButtonText}>+ New Message</Text>
+  </TouchableOpacity>
+</View>
 
       <View style={styles.searchContainer}>
         <Search size={20} color="#64748B" strokeWidth={2} />
@@ -242,11 +252,51 @@ export default function MessagesScreen() {
     </View>
   );
 
+  const renderNewMessage = () => (
+  <View style={styles.newMessageContainer}>
+    <View style={styles.chatHeader}>
+      <TouchableOpacity
+        style={styles.backButton}
+        onPress={() => setIsComposingNew(false)}
+      >
+        <ArrowLeft size={24} color="#1E293B" strokeWidth={2} />
+      </TouchableOpacity>
+      <Text style={styles.title}>New Message</Text>
+    </View>
+
+    <View style={{ padding: 24 }}>
+      <Text style={styles.name}>To:</Text>
+      <TextInput
+        style={[styles.messageInput, { marginBottom: 16 }]}
+        placeholder="Enter recipient's name"
+        placeholderTextColor="#94A3B8"
+      />
+      <Text style={styles.name}>Message:</Text>
+      <TextInput
+        style={[styles.messageInput, { height: 100 }]}
+        placeholder="Type your message..."
+        placeholderTextColor="#94A3B8"
+        multiline
+      />
+    </View>
+
+    <TouchableOpacity style={styles.sendNewButton} onPress={() => Alert.alert('Message sent!')}>
+        <Text style={styles.sendNewButtonText}>Send</Text>
+      </TouchableOpacity>
+  </View>
+);
+
+
   return (
-    <SafeAreaView style={styles.container}>
-      {selectedConversation ? renderChat() : renderConversationsList()}
-    </SafeAreaView>
-  );
+  <SafeAreaView style={styles.container}>
+    {isComposingNew
+      ? renderNewMessage()
+      : selectedConversation
+      ? renderChat()
+      : renderConversationsList()}
+  </SafeAreaView>
+);
+
 }
 
 const styles = StyleSheet.create({
@@ -521,4 +571,31 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  newMessageButton: {
+  backgroundColor: '#3B82F6',
+  paddingVertical: 12,
+  borderRadius: 12,
+  alignItems: 'center',
+},
+newMessageButtonText: {
+  fontSize: 16,
+  fontFamily: 'Inter-SemiBold',
+  color: '#FFFFFF',
+},
+newMessageContainer: {
+  flex: 1,
+  backgroundColor: '#FAFBFC',
+},
+sendNewButton: {
+  backgroundColor: '#3B82F6',
+  paddingVertical: 14,
+  borderRadius: 12,
+  alignItems: 'center',
+},
+sendNewButtonText: {
+  fontSize: 16,
+  fontFamily: 'Inter-SemiBold',
+  color: '#FFFFFF',
+},
+
 });
