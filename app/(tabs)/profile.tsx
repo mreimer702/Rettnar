@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Image, Switch } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Settings, CreditCard as Edit3, Star, MapPin, Calendar, Heart, CreditCard, Bell, Shield, CircleHelp as HelpCircle, LogOut, Award, TrendingUp, Eye, Users, LucideIcon, FileText } from 'lucide-react-native';
+import { CreditCard as Edit3, Star, MapPin, Calendar, Heart, CreditCard, Bell, Shield, CircleHelp as HelpCircle, LogOut, Award, TrendingUp, Eye, Users, LucideIcon, FileText } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { createStackNavigator } from '@react-navigation/stack';
 import { useRouter } from 'expo-router';
 
 const router = useRouter();

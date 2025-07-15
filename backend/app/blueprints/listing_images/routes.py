@@ -11,7 +11,7 @@ from app.blueprints.listing_images.schemas import (
     bulk_image_create_schema
 )
 from app.blueprints.listing_images import listing_images_bp
-from app.utils.util import user_token_required, optional_auth
+from app.utils.util import user_token_required
 from app.extensions import limiter
 
 # ========================================

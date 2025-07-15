@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Button } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
@@ -32,6 +32,10 @@ export default function AuthIndex() {
         >
           <Text style={styles.buttonText}>Continue as Guest</Text>
         </TouchableOpacity>
+        <View>
+      <Text>Home Screen</Text>
+      <Button title="Go to Test Login" onPress={() => router.push('/test-login')} />
+    </View>
       </View>
     </SafeAreaView>
   );

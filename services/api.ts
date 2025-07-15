@@ -69,7 +69,7 @@ function simulateApiResponse<T>(endpoint: string, config: RequestInit): Promise<
     setTimeout(() => {
       const responses: Record<string, any> = {
         // Auth Endpoints
-        'POST:/auth/login': {
+        'POST:/api/users/login': {
           token: 'mock_jwt_token_12345',
           user: {
             id: '1',
@@ -80,7 +80,7 @@ function simulateApiResponse<T>(endpoint: string, config: RequestInit): Promise<
             location: { lat: 37.7749, lng: -122.4194, address: 'San Francisco, CA' }
           }
         },
-        'POST:/auth/register': {
+        'POST:/api/auth/register': {
           token: 'mock_jwt_token_12345',
           user: {
             id: '1',
@@ -89,7 +89,7 @@ function simulateApiResponse<T>(endpoint: string, config: RequestInit): Promise<
             lastName: 'Doe'
           }
         },
-        'POST:/auth/logout': { success: true },
+        'POST:/api/auth/logout': { success: true },
 
         // Items Endpoints
         'GET:/items/nearby': {
@@ -309,19 +309,19 @@ export const api = {
   // Authentication
   auth: {
     login: (email: string, password: string) =>
-      apiRequest('/auth/login', {
+      apiRequest('/api/users/login', {
         method: 'POST',
         body: JSON.stringify({ email, password }),
       }),
     
     register: (userData: any) =>
-      apiRequest('/auth/register', {
+      apiRequest('/api/auth/register', {
         method: 'POST',
         body: JSON.stringify(userData),
       }),
     
     logout: () =>
-      apiRequest('/auth/logout', { method: 'POST' }),
+      apiRequest('/api/auth/logout', { method: 'POST' }),
   },
 
   // Items

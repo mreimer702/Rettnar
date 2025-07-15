@@ -6,7 +6,7 @@ from app.blueprints.listings.schemas import (
     listing_schema, listings_schema, listing_create_schema, listing_update_schema
 )
 from app.blueprints.listings import listings_bp
-from app.utils.util import user_token_required, optional_auth, admin_required
+from app.utils.util import user_token_required, admin_token_required
 from app.extensions import cache, limiter
 
 # ========================================
@@ -361,7 +361,7 @@ def delete_listing(user_id, listing_id):
 # ========================================
 
 @listings_bp.route('/admin/all', methods=['GET'])
-@admin_required
+@admin_token_required
 def admin_get_all_listings(user_id):
     """Admin: Get all listings with additional details"""
     page = request.args.get('page', 1, type=int)
@@ -388,7 +388,7 @@ def admin_get_all_listings(user_id):
     }), 200
 
 @listings_bp.route('/admin/<int:listing_id>', methods=['DELETE'])
-@admin_required
+@admin_token_required
 @limiter.limit("10 per minute")
 def admin_delete_listing(user_id, listing_id):
     """Admin: Delete any listing"""

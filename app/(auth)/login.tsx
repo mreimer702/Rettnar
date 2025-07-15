@@ -3,6 +3,9 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'reac
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react-native';
+import { api } from '../../services/api'; 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { TokenManager } from '../../services/TokenManager'; 
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -12,20 +15,27 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
-    if (!email || !password) {
-      Alert.alert('Error', 'Please fill in all fields');
-      return;
-    }
+    try {
+      setLoading(true);
+      const response = await api.auth.login(email, password) as { token: string; user: { firstName: string } };
+      console.log('API response:', response);
 
-    setLoading(true);
-    
-    // Simulate API call
-    setTimeout(() => {
+      if (response.token) {
+        await TokenManager.setToken(response.token);  // Wait for this to finish
+      }
+  
+      const storedToken = await TokenManager.getToken();  // Read via TokenManager, not AsyncStorage directly
+      console.log('Stored token:', storedToken);
+  
+      Alert.alert('Login Successful', `Welcome, ${response.user.firstName}`);
+    } catch (error) {
+      console.error('Login error:', error);
+      Alert.alert('Error', 'Login failed');
+    } finally {
       setLoading(false);
-      // For demo purposes, accept any email/password
-      router.replace('/(tabs)');
-    }, 1500);
+    }
   };
+  
 
   return (
     <SafeAreaView style={styles.container}>

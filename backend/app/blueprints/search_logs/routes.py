@@ -12,7 +12,7 @@ from app.blueprints.search_logs.schemas import (
 )
 from app.blueprints.search_logs import search_logs_bp
 from app.extensions import cache, limiter
-from app.utils.util import user_token_required, admin_required
+from app.utils.util import user_token_required, admin_token_required
 
 # ========================================
 # AUTHENTICATED USER ROUTES
@@ -225,7 +225,7 @@ def get_popular_searches():
 # ========================================
 
 @search_logs_bp.route('/admin/all', methods=['GET'])
-@admin_required
+@admin_token_required
 def admin_get_all_search_logs(user_id):
     """Admin: Get all search logs with pagination"""
     page = request.args.get('page', 1, type=int)
@@ -252,7 +252,7 @@ def admin_get_all_search_logs(user_id):
     }), 200
 
 @search_logs_bp.route('/admin/analytics', methods=['GET'])
-@admin_required
+@admin_token_required
 def admin_get_search_analytics(user_id):
     """Admin: Get comprehensive search analytics"""
     days = request.args.get('days', 30, type=int)
@@ -289,7 +289,7 @@ def admin_get_search_analytics(user_id):
     return jsonify({'analytics': analytics}), 200
 
 @search_logs_bp.route('/admin/<int:search_log_id>', methods=['DELETE'])
-@admin_required
+@admin_token_required
 @limiter.limit("10 per minute")
 def admin_delete_search_log(user_id, search_log_id):
     """Admin: Delete any search log entry"""

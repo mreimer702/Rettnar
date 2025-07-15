@@ -15,7 +15,7 @@ from app.blueprints.notifications.schemas import (
     bulk_notification_create_schema
 )
 from app.blueprints.notifications import notifications_bp
-from app.utils.util import user_token_required, admin_required
+from app.utils.util import user_token_required, admin_token_required
 from app.extensions import limiter
 
 # ========================================
@@ -224,7 +224,7 @@ def delete_delivery_notification(user_id, notification_id):
 # ========================================
 
 @notifications_bp.route('/general', methods=['POST'])
-@admin_required
+@admin_token_required
 @limiter.limit("20 per minute")
 def create_general_notification(user_id):
     """Admin: Create a new general notification for any user"""
@@ -254,7 +254,7 @@ def create_general_notification(user_id):
     return general_notification_schema.jsonify(notification), 201
 
 @notifications_bp.route('/general/bulk', methods=['POST'])
-@admin_required
+@admin_token_required
 @limiter.limit("5 per minute")
 def create_bulk_notifications(user_id):
     """Admin: Create notifications for multiple users"""
@@ -290,7 +290,7 @@ def create_bulk_notifications(user_id):
     }), 201
 
 @notifications_bp.route('/delivery', methods=['POST'])
-@admin_required
+@admin_token_required
 @limiter.limit("20 per minute")
 def create_delivery_notification(user_id):
     """Admin: Create a new delivery notification"""
@@ -330,7 +330,7 @@ def create_delivery_notification(user_id):
     return delivery_notification_schema.jsonify(notification), 201
 
 @notifications_bp.route('/admin/general', methods=['GET'])
-@admin_required
+@admin_token_required
 def admin_get_all_general_notifications(user_id):
     """Admin: Get all general notifications with pagination"""
     page = request.args.get('page', 1, type=int)
@@ -357,7 +357,7 @@ def admin_get_all_general_notifications(user_id):
     }), 200
 
 @notifications_bp.route('/admin/delivery', methods=['GET'])
-@admin_required
+@admin_token_required
 def admin_get_all_delivery_notifications(user_id):
     """Admin: Get all delivery notifications with pagination"""
     page = request.args.get('page', 1, type=int)

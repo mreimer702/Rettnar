@@ -8,7 +8,7 @@ from app.blueprints.users.schemas import (
 )
 from app.blueprints.users import users_bp
 from werkzeug.security import generate_password_hash, check_password_hash
-from app.utils.util import encode_user_token, user_token_required, admin_required
+from app.utils.util import encode_user_token, user_token_required, admin_token_required
 from app.extensions import limiter
 
 # ========================================
@@ -178,7 +178,7 @@ def update_profile(user_id):
 # ========================================
 
 @users_bp.route("/users", methods=["GET"])
-@admin_required
+@admin_token_required
 @limiter.limit('20 per minute')
 def get_all_users(user_id):
     """Admin: Get all users with pagination"""
@@ -206,7 +206,7 @@ def get_all_users(user_id):
     }), 200
 
 @users_bp.route("/users/<int:target_user_id>", methods=["GET"])
-@admin_required
+@admin_token_required
 @limiter.limit('30 per minute')
 def get_user_by_id(user_id, target_user_id):
     """Admin: Get user by ID"""
@@ -220,7 +220,7 @@ def get_user_by_id(user_id, target_user_id):
     return user_schema.jsonify(user), 200
 
 @users_bp.route("/users/<int:target_user_id>/deactivate", methods=["PUT"])
-@admin_required
+@admin_token_required
 @limiter.limit('10 per minute')
 def deactivate_user(user_id, target_user_id):
     """Admin: Deactivate a user"""
@@ -237,7 +237,7 @@ def deactivate_user(user_id, target_user_id):
     return jsonify({"message": "User deactivated successfully"}), 200
 
 @users_bp.route("/users/<int:target_user_id>/activate", methods=["PUT"])
-@admin_required
+@admin_token_required
 @limiter.limit('10 per minute')
 def activate_user(user_id, target_user_id):
     """Admin: Activate a user"""
@@ -254,7 +254,7 @@ def activate_user(user_id, target_user_id):
     return jsonify({"message": "User activated successfully"}), 200
 
 @users_bp.route("/roles", methods=["POST"])
-@admin_required
+@admin_token_required
 @limiter.limit('5 per minute')
 def create_role(user_id):
     """Admin: Create a new role"""
@@ -274,7 +274,7 @@ def create_role(user_id):
     return role_schema.jsonify(new_role), 201
 
 @users_bp.route("/roles/<int:role_id>", methods=["GET"])
-@admin_required
+@admin_token_required
 def get_role(user_id, role_id):
     """Admin: Get role by ID"""
     role = db.session.execute(select(Role).where(Role.role_id == role_id)).scalars().first()
@@ -283,7 +283,7 @@ def get_role(user_id, role_id):
     return role_schema.jsonify(role), 200
 
 @users_bp.route("/roles/<int:role_id>", methods=["PUT"])
-@admin_required
+@admin_token_required
 @limiter.limit('5 per minute')
 def update_role(user_id, role_id):
     """Admin: Update a role"""
@@ -308,7 +308,7 @@ def update_role(user_id, role_id):
     return role_schema.jsonify(role), 200
 
 @users_bp.route("/roles/<int:role_id>", methods=["DELETE"])
-@admin_required
+@admin_token_required
 @limiter.limit('5 per minute')
 def delete_role(user_id, role_id):
     """Admin: Delete a role"""

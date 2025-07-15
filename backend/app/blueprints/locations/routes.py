@@ -4,7 +4,7 @@ from sqlalchemy import select, func
 from app.models import Listing, User, Location, Subcategory, db
 from marshmallow import ValidationError
 from . import locations_bp
-from app.utils.util import user_token_required, admin_required
+from app.utils.util import user_token_required, admin_token_required
 from app.extensions import limiter
 
 # ========================================
@@ -149,7 +149,7 @@ def create_location(user_id):
 # ========================================
 
 @locations_bp.route("/admin/all", methods=["GET"])
-@admin_required
+@admin_token_required
 def admin_get_all_locations(user_id):
     """Admin: Get all locations with enhanced pagination"""
     page = request.args.get('page', 1, type=int)
@@ -179,7 +179,7 @@ def admin_get_all_locations(user_id):
     }), 200
 
 @locations_bp.route("/<int:location_id>", methods=["PUT"])
-@admin_required
+@admin_token_required
 @limiter.limit("10 per minute")
 def update_location(user_id, location_id):
     """Admin: Update location"""
@@ -206,7 +206,7 @@ def update_location(user_id, location_id):
     return location_schema.jsonify(location), 200
 
 @locations_bp.route("/<int:location_id>", methods=["DELETE"])
-@admin_required
+@admin_token_required
 @limiter.limit("5 per minute")
 def delete_location(user_id, location_id):
     """Admin: Delete location (only if not referenced by listings or users)"""
@@ -242,7 +242,7 @@ def delete_location(user_id, location_id):
     return jsonify({"message": "Location deleted successfully"}), 200
 
 @locations_bp.route("/admin/analytics", methods=["GET"])
-@admin_required
+@admin_token_required
 def admin_location_analytics(user_id):
     """Admin: Get location analytics"""
     # Get locations with listing counts

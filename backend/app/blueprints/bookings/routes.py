@@ -5,7 +5,7 @@ from app.models import Booking, Listing, User, db
 from marshmallow import ValidationError
 from . import bookings_bp
 from datetime import datetime
-from app.utils.util import user_token_required, admin_required
+from app.utils.util import user_token_required, admin_token_required
 from app.extensions import limiter
 
 # ========================================
@@ -186,7 +186,7 @@ def cancel_booking(user_id, booking_id):
 # ========================================
 
 @bookings_bp.route("", methods=["GET"])
-@admin_required
+@admin_token_required
 def get_all_bookings(user_id):
     """Admin: Get all bookings with pagination"""
     page = request.args.get('page', 1, type=int)
@@ -213,7 +213,7 @@ def get_all_bookings(user_id):
     }), 200
 
 @bookings_bp.route("/admin/<int:booking_id>", methods=["DELETE"])
-@admin_required
+@admin_token_required
 @limiter.limit("10 per minute")
 def admin_delete_booking(user_id, booking_id):
     """Admin: Permanently delete a booking"""
