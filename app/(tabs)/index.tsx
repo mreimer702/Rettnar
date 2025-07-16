@@ -23,20 +23,23 @@ const subcategories = [
   { id: 3, name: 'Sports', category: 'Equipment' },
   { id: 4, name: 'Audio', category: 'Equipment' },
   { id: 5, name: 'Tools', category: 'Equipment' },
+  { id: 6, name: 'More', category: 'Equipment' },
 
   // Venues
-  { id: 6, name: 'Events', category: 'Venues' },
-  { id: 7, name: 'Ceremonies', category: 'Venues' },
-  { id: 8, name: 'Workspaces', category: 'Venues' },
-  { id: 9, name: 'Studios', category: 'Venues' },
-  { id: 10, name: 'Retail', category: 'Venues' },
+  { id: 7, name: 'Events', category: 'Venues' },
+  { id: 8, name: 'Ceremonies', category: 'Venues' },
+  { id: 9, name: 'Workspaces', category: 'Venues' },
+  { id: 10, name: 'Studios', category: 'Venues' },
+  { id: 11, name: 'Retail', category: 'Venues' },
+  { id: 12, name: 'More', category: 'Venues' },
 
   // Vehicles
-  { id: 11, name: 'Personal', category: 'Vehicles' },
-  { id: 12, name: 'Luxury', category: 'Vehicles' },
-  { id: 14, name: 'Adventure', category: 'Vehicles' },
-  { id: 15, name: 'Special', category: 'Vehicles' },
-  { id: 16, name: 'Commercial', category: 'Vehicles' },
+  { id: 13, name: 'Personal', category: 'Vehicles' },
+  { id: 14, name: 'Luxury', category: 'Vehicles' },
+  { id: 15, name: 'Adventure', category: 'Vehicles' },
+  { id: 16, name: 'Special', category: 'Vehicles' },
+  { id: 17, name: 'Commercial', category: 'Vehicles' },
+  { id: 18, name: 'More', category: 'Vehicles' },
 ];
 
 
@@ -216,7 +219,7 @@ export default function HomeScreen() {
        <View style={styles.section}>
   <Text style={styles.sectionTitle}>Browse Categories</Text>
 
-  <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoriesScroll}>
+  <View style={styles.categoriesRow}>
     {categories.map((category) => (
       <TouchableOpacity
         key={category.id}
@@ -238,7 +241,7 @@ export default function HomeScreen() {
         <Text style={styles.categoryName}>{category.name}</Text>
       </TouchableOpacity>
     ))}
-  </ScrollView>
+  </View>
 
   {selectedCategory && (
   <View style={styles.subcategoryContainer}>
@@ -268,12 +271,8 @@ export default function HomeScreen() {
 
         {/* Featured Items */}
         <View style={styles.section}>
-          <View style={styles.sectionHeader}>
+          <View>
             <Text style={styles.sectionTitle}>Featured Near You</Text>
-            <TouchableOpacity style={styles.instantBookBadge}>
-              <Zap size={12} color="#F59E0B" fill="#F59E0B" strokeWidth={0} />
-              <Text style={styles.instantBookText}>Instant Book</Text>
-            </TouchableOpacity>
           </View>
           
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.itemsScroll}>
@@ -284,11 +283,6 @@ export default function HomeScreen() {
                   <TouchableOpacity style={styles.favoriteButton}>
                     <Heart size={14} color="#64748B" strokeWidth={2} />
                   </TouchableOpacity>
-                  {item.instantBook && (
-                    <View style={styles.instantBookBadgeSmall}>
-                      <Zap size={8} color="#F59E0B" fill="#F59E0B" strokeWidth={0} />
-                    </View>
-                  )}
                 </View>
                 
                 <View style={styles.cardContent}>
@@ -499,6 +493,7 @@ const styles = StyleSheet.create({
     color: '#1E293B',
     paddingHorizontal: 24,
     marginBottom: 16,
+    textAlign: 'center'
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -520,9 +515,13 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-SemiBold',
     color: '#D97706',
     marginLeft: 4,
+    textAlign: 'center',
   },
-  categoriesScroll: {
-    paddingLeft: 24,
+  categoriesRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+    paddingHorizontal: 24,
   },
   categoryCard: {
     alignItems: 'center',
@@ -758,11 +757,13 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Bold',
     color: '#1E293B',
     marginBottom: 8,
+    textAlign: 'center',
   },
   subcategoryList: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 8,
+    justifyContent: 'center',
   },
   subcategoryItem: {
     backgroundColor: '#FFFFFF',
@@ -778,5 +779,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontFamily: 'Inter-Medium',
     color: '#3B82F6',
+    textAlign: 'center',
   },
 });
