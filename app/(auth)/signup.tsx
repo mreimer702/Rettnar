@@ -3,6 +3,9 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView 
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react-native';
+import { api } from '../../services/api';
+import { TokenManager } from '../../services/TokenManager'; 
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function SignupScreen() {
   const router = useRouter();
@@ -41,13 +44,30 @@ export default function SignupScreen() {
 
     setLoading(true);
     
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      setLoading(true);
+      
+      const response = await api.auth.register({ firstName, lastName, email, password }) as { user?: { firstName: string }; token?: string };
+      console.log('API response:', response);
+      if (!response || !response.user) {
+        throw new Error('Invalid response from server');
+      }
+      if (response.token) {
+        await TokenManager.setToken(response.token);
+      }
+  
+      const storedToken = await AsyncStorage.getItem('auth_token');
+      console.log('Stored token:', storedToken);
+  
+      Alert.alert('Signup Successful', `Welcome, ${response.user.firstName}`);
+
+      router.replace('../(tabs)');  
+    } catch (error) {
+      console.error('Signup error:', error);
+      Alert.alert('Error', 'Signup failed');
+    } finally {
       setLoading(false);
-      Alert.alert('Success', 'Account created successfully!', [
-        { text: 'OK', onPress: () => router.replace('/(tabs)') }
-      ]);
-    }, 1500);
+    }
   };
 
   return (

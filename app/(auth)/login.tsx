@@ -21,13 +21,15 @@ export default function LoginScreen() {
       console.log('API response:', response);
 
       if (response.token) {
-        await TokenManager.setToken(response.token);  // Wait for this to finish
+        await TokenManager.setToken(response.token);  
       }
   
-      const storedToken = await TokenManager.getToken();  // Read via TokenManager, not AsyncStorage directly
+      const storedToken = await TokenManager.getToken();  
       console.log('Stored token:', storedToken);
   
       Alert.alert('Login Successful', `Welcome, ${response.user.firstName}`);
+
+      router.replace('../(tabs)');  
     } catch (error) {
       console.error('Login error:', error);
       Alert.alert('Error', 'Login failed');

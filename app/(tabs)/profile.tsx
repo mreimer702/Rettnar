@@ -7,6 +7,8 @@ import { Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { TokenManager } from '../../services/TokenManager'; 
 
 const router = useRouter();
 
@@ -93,6 +95,24 @@ function handlePress(
       Alert.alert('Info', 'Action not implemented.');
   }
 }
+
+const handleLogout = async () => {
+  try {
+    await TokenManager.removeToken();
+
+    const storedToken = await AsyncStorage.getItem('auth_token');
+    console.log('Token after logout:', storedToken); 
+    if (storedToken) {
+      throw new Error('Failed to remove token');
+    }
+    // Navigate to the login screen
+    router.push('/(auth)');
+    Alert.alert('Logged Out', 'You have been successfully logged out.');
+  } catch (error) {
+    console.error('Logout error:', error);
+    Alert.alert('Error', 'Failed to log out.');
+  }
+};
 
 
   return (
@@ -256,7 +276,8 @@ function handlePress(
           {/* Logout */}
           <TouchableOpacity style={styles.logoutButton}>
             <LogOut size={20} color="#EF4444" strokeWidth={2} />
-            <Text style={styles.logoutText}>Sign Out</Text>
+            <Text style={styles.logoutText}
+            onPress={handleLogout}>Sign Out</Text>
           </TouchableOpacity>
 
           <Text style={styles.version}>Renttar v1.0.0</Text>

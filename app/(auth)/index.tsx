@@ -32,10 +32,6 @@ export default function AuthIndex() {
         >
           <Text style={styles.buttonText}>Continue as Guest</Text>
         </TouchableOpacity>
-        <View>
-      <Text>Home Screen</Text>
-      <Button title="Go to Test Login" onPress={() => router.push('/test-login')} />
-    </View>
       </View>
     </SafeAreaView>
   );
