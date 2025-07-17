@@ -69,7 +69,7 @@ function simulateApiResponse<T>(endpoint: string, config: RequestInit): Promise<
     setTimeout(() => {
       const responses: Record<string, any> = {
         // Auth Endpoints
-        'POST:/api/users/login': {
+        'POST:/users/login': {
           token: 'mock_jwt_token_12345',
           user: {
             id: '1',
@@ -80,7 +80,7 @@ function simulateApiResponse<T>(endpoint: string, config: RequestInit): Promise<
             location: { lat: 37.7749, lng: -122.4194, address: 'San Francisco, CA' }
           }
         },
-        'POST:/api/auth/register': {
+        'POST:/users/register': {
           token: 'mock_jwt_token_12345',
           user: {
             id: '1',
@@ -89,10 +89,10 @@ function simulateApiResponse<T>(endpoint: string, config: RequestInit): Promise<
             lastName: 'Doe'
           }
         },
-        'POST:/api/auth/logout': { success: true },
+        'POST:/auth/logout': { success: true },
 
         // Items Endpoints
-        'GET:/items/nearby': {
+        'GET:/listings/nearby': {
           items: [
             {
               id: '1',
@@ -132,7 +132,7 @@ function simulateApiResponse<T>(endpoint: string, config: RequestInit): Promise<
             }
           ]
         },
-        'GET:/items/1': {
+        'GET:/listings/1': {
           id: '1',
           title: 'Professional DSLR Camera Kit',
           description: 'Complete DSLR camera setup perfect for professional photography and videography. Includes camera body, multiple lenses (50mm, 85mm, 24-70mm), tripod, extra batteries, memory cards, and carrying case.',
@@ -175,7 +175,7 @@ function simulateApiResponse<T>(endpoint: string, config: RequestInit): Promise<
             pickup: true
           }
         },
-        'POST:/items': {
+        'POST:/listings': {
           id: '3',
           title: 'New Item',
           message: 'Item created successfully'
@@ -227,7 +227,7 @@ function simulateApiResponse<T>(endpoint: string, config: RequestInit): Promise<
             }
           ]
         },
-        'PUT:/bookings/booking_123/status': {
+        'PUT:/bookings/booking_123': {
           success: true,
           booking: {
             id: 'booking_123',
@@ -281,7 +281,7 @@ function simulateApiResponse<T>(endpoint: string, config: RequestInit): Promise<
         },
 
         // Notifications Endpoints
-        'GET:/notifications': {
+        'GET:/notifications/general': {
           notifications: [
             {
               id: 'notif_1',
@@ -293,7 +293,7 @@ function simulateApiResponse<T>(endpoint: string, config: RequestInit): Promise<
             }
           ]
         },
-        'PUT:/notifications/notif_1/read': { success: true }
+        'PUT:/notifications/general/notif_1': { success: true }
       };
 
       const method = config.method || 'GET';
@@ -309,43 +309,43 @@ export const api = {
   // Authentication
   auth: {
     login: (email: string, password: string) =>
-      apiRequest('/api/users/login', {
+      apiRequest('/users/login', {
         method: 'POST',
         body: JSON.stringify({ email, password }),
       }),
     
     register: (userData: any) =>
-      apiRequest('/api/auth/register', {
+      apiRequest('/users/register', {
         method: 'POST',
         body: JSON.stringify(userData),
       }),
     
     logout: () =>
-      apiRequest('/api/auth/logout', { method: 'POST' }),
+      apiRequest('/auth/logout', { method: 'POST' }),
   },
 
-  // Items
-  items: {
+  // Listings
+  listings: {
     getNearby: (lat: number, lng: number, radius: number = 10) =>
-      apiRequest(`/items/nearby?lat=${lat}&lng=${lng}&radius=${radius}`),
-    
+      apiRequest(`/listings/nearby?lat=${lat}&lng=${lng}&radius=${radius}`),
+
     getById: (id: string) =>
-      apiRequest(`/items/${id}`),
-    
+      apiRequest(`/listings/${id}`),
+
     create: (itemData: any) =>
-      apiRequest('/items', {
+      apiRequest('/listings', {
         method: 'POST',
         body: JSON.stringify(itemData),
       }),
     
     update: (id: string, itemData: any) =>
-      apiRequest(`/items/${id}`, {
+      apiRequest(`/listings/${id}`, {
         method: 'PUT',
         body: JSON.stringify(itemData),
       }),
     
     search: (query: string, filters: any = {}) =>
-      apiRequest(`/items/search?q=${query}&${new URLSearchParams(filters)}`),
+      apiRequest(`/listings/search?q=${query}&${new URLSearchParams(filters)}`),
   },
 
   // Bookings
@@ -363,14 +363,14 @@ export const api = {
       apiRequest(`/bookings/${id}`),
     
     updateStatus: (id: string, status: string) =>
-      apiRequest(`/bookings/${id}/status`, {
+      apiRequest(`/bookings/${id}`, {
         method: 'PUT',
         body: JSON.stringify({ status }),
       }),
-    
+
     cancel: (id: string, reason?: string) =>
-      apiRequest(`/bookings/${id}/cancel`, {
-        method: 'PUT',
+      apiRequest(`/bookings/${id}`, {
+        method: 'DELETE',
         body: JSON.stringify({ reason }),
       }),
   },
@@ -393,32 +393,42 @@ export const api = {
   // Notifications
   notifications: {
     getAll: () =>
-      apiRequest('/notifications'),
-    
+      apiRequest('/notifications/general'),
+
     markAsRead: (id: string) =>
-      apiRequest(`/notifications/${id}/read`, {
+      apiRequest(`/notifications/general/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify({ is_read: true }),
+      }),
+
+    markAllAsRead: () =>
+      apiRequest('/notifications/general/mark-all-read', {
         method: 'PUT',
       }),
-    
-    markAllAsRead: () =>
-      apiRequest('/notifications/read-all', {
-        method: 'PUT',
+  },
+
+  // Payments
+  payments: {
+    addMethod: (paymentData: any) =>
+      apiRequest('/payments', {
+        method: 'POST',
+        body: JSON.stringify(paymentData),
       }),
   },
 
   // User Profile
   user: {
     getProfile: () =>
-      apiRequest('/user/profile'),
-    
+      apiRequest('/users/profile'),
+
     updateProfile: (profileData: any) =>
-      apiRequest('/user/profile', {
+      apiRequest('/users/profile', {
         method: 'PUT',
         body: JSON.stringify(profileData),
       }),
     
     uploadAvatar: (imageUri: string) =>
-      apiRequest('/user/avatar', {
+      apiRequest('/users/avatar', {
         method: 'POST',
         body: JSON.stringify({ imageUri }),
       }),

@@ -10,6 +10,7 @@ import {
 import { StyleSheet } from 'react-native';
 import { ChevronLeft } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
+import { api } from '../../../services/api';
 
 // Define navigation stack types
 type RootStackParamList = {
@@ -37,27 +38,19 @@ const AddPaymentPage: React.FC = () => {
     }
 
     try {
-      const response = await fetch('https://your-api.com/payment-methods', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          cardholderName,
-          cardNumber,
-          expirationDate,
-          cvv,
-          billingAddress,
-        }),
-      });
+      const response = await api.payments.addMethod({
+        cardholderName,
+        cardNumber,
+        expirationDate,
+        cvv,
+        billingAddress,
+      }) as { message?: string };
 
-      const data = await response.json();
-
-      if (response.ok) {
+      if (response) {
         Alert.alert('Success', 'Payment method added successfully.');
         router.back();
       } else {
-        Alert.alert('Error', data.message || 'Failed to add payment method.');
+        Alert.alert('Error', response?.message || 'Failed to add payment method.');
       }
     } catch (error) {
       console.error(error);
