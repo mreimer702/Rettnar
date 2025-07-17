@@ -32,6 +32,7 @@ const resources = {
       alreadyHaveAccount: 'Already have an account?',
       placeholderFirstName: 'John',
       placeholderLastName: 'Doe',
+      passwordLengthError: 'Password must be at least 8 characters long',
     },
   },
   fr: {
@@ -63,6 +64,7 @@ const resources = {
       alreadyHaveAccount: 'Vous avez déjà un compte ?',
       placeholderFirstName: 'Jean',
       placeholderLastName: 'DuPont',
+      passwordLengthError: 'Le mot de passe doit comporter au moins 8 caractères',
     },
   },
 };

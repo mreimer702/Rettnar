@@ -1,4 +1,4 @@
-from flask import request, jsonify
+from flask import request, jsonify, Flask
 from sqlalchemy import select, func
 from marshmallow import ValidationError
 from app.models import User, Role, Location, db
@@ -21,8 +21,11 @@ from app.extensions import limiter
 def register_user():
     try:
         data = request.get_json()
+        print(f"📥 Incoming data: {data}")  # Log incoming data for debugging
+
         validated_data = user_registration_schema.load(data)
     except ValidationError as e:
+        print(f"❌ Validation error: {e.messages}")  # Log validation errors
         return jsonify({"errors": e.messages}), 400
 
     # Check if email already exists
@@ -31,6 +34,7 @@ def register_user():
     ).scalars().first()
     
     if existing_user:
+        print(f"❌ Email already exists: {validated_data['email']}")  # Log duplicate email
         return jsonify({"error": "Email already exists"}), 400
 
     # Create location if provided
