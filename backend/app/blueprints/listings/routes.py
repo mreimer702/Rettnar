@@ -1,9 +1,13 @@
 from flask import request, jsonify
-from sqlalchemy import select, func, and_, or_
+from sqlalchemy import select, func, and_, or_, text
 from marshmallow import ValidationError
+import math
 from app.models import Listing, Category, Subcategory, Location, Amenity, ListingFeature, User, db
 from app.blueprints.listings.schemas import (
     listing_schema, listings_schema, listing_create_schema, listing_update_schema
+)
+from app.blueprints.listings.frontend_schemas import (
+    FrontendListingsResponseSchema, FrontendListingSchema
 )
 from app.blueprints.listings import listings_bp
 from app.utils.util import user_token_required, admin_token_required
@@ -31,6 +35,11 @@ def get_listings():
     state = request.args.get('state')
     zip_code = request.args.get('zip_code')
     search = request.args.get('search')
+    
+    # Nearby search parameters
+    lat = request.args.get('lat', type=float)
+    lng = request.args.get('lng', type=float)
+    radius = request.args.get('radius', type=float, default=10.0)  # Default 10 km radius
 
     if category_id:
         query = query.join(Subcategory).where(Subcategory.category_id == category_id)
@@ -66,6 +75,30 @@ def get_listings():
             )
         )
 
+    # Nearby/Geolocation filtering
+    if lat is not None and lng is not None:
+        # Join with Location if not already joined
+        if not any('location' in str(query) for table in ['city', 'state', 'zip_code']):
+            query = query.join(Location)
+        
+        # Use Haversine formula to calculate distance with SQLAlchemy functions
+        distance_expr = func.acos(
+            func.cos(func.radians(lat)) * 
+            func.cos(func.radians(Location.latitude)) * 
+            func.cos(func.radians(Location.longitude) - func.radians(lng)) + 
+            func.sin(func.radians(lat)) * 
+            func.sin(func.radians(Location.latitude))
+        ) * 6371  # Earth's radius in kilometers
+        
+        # Filter by radius
+        query = query.where(
+            and_(
+                Location.latitude.isnot(None),
+                Location.longitude.isnot(None),
+                distance_expr <= radius
+            )
+        )
+
     # Get total count
     total_query = select(func.count(Listing.listing_id))
     if query.whereclause is not None:
@@ -87,10 +120,10 @@ def get_listings():
         'has_next': page * per_page < total
     }
 
-    return jsonify({
-        'listings': listings_schema.dump(listings),
-        'pagination': pagination_info
-    }), 200
+    # Use frontend schema to format response
+    frontend_schema = FrontendListingsResponseSchema()
+    response_data = frontend_schema.dump({'items': listings})
+    return jsonify(response_data), 200
 
 @listings_bp.route('/<int:listing_id>', methods=['GET'])
 @cache.cached(timeout=300)
@@ -103,7 +136,9 @@ def get_listing(listing_id):
     if not listing:
         return jsonify({'error': 'Listing not found'}), 404
 
-    return listing_schema.jsonify(listing), 200
+    # Use frontend schema to format response
+    frontend_schema = FrontendListingSchema()
+    return jsonify(frontend_schema.dump(listing)), 200
 
 @listings_bp.route('/user/<int:owner_id>', methods=['GET'])
 def get_user_listings(owner_id):
@@ -138,6 +173,89 @@ def get_user_listings(owner_id):
         'has_next': page * per_page < total
     }
 
+    return jsonify({
+        'listings': listings_schema.dump(listings),
+        'pagination': pagination_info
+    }), 200
+
+@listings_bp.route('/nearby', methods=['GET'])
+@cache.cached(timeout=300, query_string=True)
+def get_nearby_listings():
+    """Public: Get listings near a specific location"""
+    lat = request.args.get('lat', type=float)
+    lng = request.args.get('lng', type=float)
+    radius = request.args.get('radius', type=float, default=10.0)
+    
+    if lat is None or lng is None:
+        return jsonify({'error': 'Latitude and longitude are required'}), 400
+    
+    page = request.args.get('page', 1, type=int)
+    per_page = min(request.args.get('per_page', 20, type=int), 100)
+    
+    # Base query with location join
+    query = select(Listing).join(Location)
+    
+    # Apply other filters if provided
+    category_id = request.args.get('category_id', type=int)
+    subcategory_id = request.args.get('subcategory_id', type=int)
+    min_price = request.args.get('min_price', type=int)
+    max_price = request.args.get('max_price', type=int)
+    
+    if category_id:
+        query = query.join(Subcategory).where(Subcategory.category_id == category_id)
+    
+    if subcategory_id:
+        query = query.where(Listing.subcategory_id == subcategory_id)
+    
+    if min_price is not None:
+        query = query.where(Listing.price >= min_price)
+    
+    if max_price is not None:
+        query = query.where(Listing.price <= max_price)
+    
+    # Geolocation filtering using Haversine formula
+    # Create a subquery with distance calculation
+    distance_expr = func.acos(
+        func.cos(func.radians(lat)) * 
+        func.cos(func.radians(Location.latitude)) * 
+        func.cos(func.radians(Location.longitude) - func.radians(lng)) + 
+        func.sin(func.radians(lat)) * 
+        func.sin(func.radians(Location.latitude))
+    ) * 6371  # Earth's radius in kilometers
+    
+    # Filter by radius
+    query = query.where(
+        and_(
+            Location.latitude.isnot(None),
+            Location.longitude.isnot(None),
+            distance_expr <= radius
+        )
+    )
+    
+    # Order by distance (closest first)
+    query = query.order_by(distance_expr)
+    
+    # Get total count
+    total_query = select(func.count(Listing.listing_id)).select_from(
+        query.subquery()
+    )
+    total = db.session.execute(total_query).scalar()
+    
+    # Apply pagination
+    offset = (page - 1) * per_page
+    listings = db.session.execute(query.offset(offset).limit(per_page)).scalars().all()
+    
+    pagination_info = {
+        'page': page,
+        'per_page': per_page,
+        'total': total,
+        'total_pages': (total + per_page - 1) // per_page,
+        'has_prev': page > 1,
+        'has_next': page * per_page < total,
+        'radius_km': radius,
+        'center': {'lat': lat, 'lng': lng}
+    }
+    
     return jsonify({
         'listings': listings_schema.dump(listings),
         'pagination': pagination_info
@@ -212,7 +330,10 @@ def create_listing(user_id):
                 db.session.add(feature)
 
     db.session.commit()
-    return listing_schema.jsonify(listing), 201
+    
+    # Use frontend schema to format response
+    frontend_schema = FrontendListingSchema()
+    return jsonify(frontend_schema.dump(listing)), 201
 
 @listings_bp.route('/my-listings', methods=['GET'])
 @user_token_required
@@ -241,10 +362,10 @@ def get_my_listings(user_id):
         'has_next': page * per_page < total
     }
 
-    return jsonify({
-        'listings': listings_schema.dump(listings),
-        'pagination': pagination_info
-    }), 200
+    # Use frontend schema to format response  
+    frontend_schema = FrontendListingsResponseSchema()
+    response_data = frontend_schema.dump({'items': listings})
+    return jsonify(response_data), 200
 
 @listings_bp.route('/<int:listing_id>', methods=['PUT'])
 @user_token_required
