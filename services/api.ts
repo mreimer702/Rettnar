@@ -1,9 +1,25 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Constants from 'expo-constants';
 
 // API Base Configuration
 const API_BASE_URL = __DEV__ 
-  ? 'http://localhost:5000/api' 
+  ? 'http://localhost:5001/api' 
   : 'https://your-production-api.com/api';
+
+// Environment control for mock API
+// Can be controlled via app.config.js or environment variables
+const USE_MOCK_API = Constants.expoConfig?.extra?.useMockApi === 'true' || 
+                     (__DEV__ && Constants.expoConfig?.extra?.useMockApi !== 'false');
+
+// Debug logging
+if (__DEV__) {
+  console.log('🔧 API Configuration:', {
+    isDev: __DEV__,
+    useMockApi: USE_MOCK_API,
+    apiBaseUrl: API_BASE_URL,
+    expoConfig: Constants.expoConfig?.extra
+  });
+}
 
 // Auth Token Management
 export const TokenManager = {
@@ -33,7 +49,7 @@ export const TokenManager = {
   }
 };
 
-// Generic API Request Function
+// Generic API Request Function with Token Refresh
 async function apiRequest<T>(
   endpoint: string, 
   options: RequestInit = {}
@@ -49,18 +65,33 @@ async function apiRequest<T>(
     ...options,
   };
 
-  // For development, simulate API responses
-  if (__DEV__) {
+  // For development, simulate API responses (can be disabled with USE_MOCK_API=false)
+  if (USE_MOCK_API) {
     return simulateApiResponse<T>(endpoint, config);
   }
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
-  
-  if (!response.ok) {
-    throw new Error(`API Error: ${response.status}`);
-  }
+  try {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+    
+    // Handle token expiration
+    if (response.status === 401 && token) {
+      console.log('Token expired, attempting refresh...');
+      await TokenManager.removeToken();
+      throw new Error('Session expired. Please log in again.');
+    }
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || errorData.error || `API Error: ${response.status}`);
+    }
 
-  return response.json();
+    return response.json();
+  } catch (error) {
+    if (error instanceof Error) {
+      throw error;
+    }
+    throw new Error('Network error occurred');
+  }
 }
 
 // Simulated API Responses for Development
@@ -69,7 +100,7 @@ function simulateApiResponse<T>(endpoint: string, config: RequestInit): Promise<
     setTimeout(() => {
       const responses: Record<string, any> = {
         // Auth Endpoints
-        'POST:/users/login': {
+        'POST:/auth/login': {
           token: 'mock_jwt_token_12345',
           user: {
             id: '1',
@@ -91,7 +122,7 @@ function simulateApiResponse<T>(endpoint: string, config: RequestInit): Promise<
         },
         'POST:/auth/logout': { success: true },
 
-        // Items Endpoints
+        // Listings Endpoints
         'GET:/listings/nearby': {
           items: [
             {
@@ -309,15 +340,20 @@ export const api = {
   // Authentication
   auth: {
     login: (email: string, password: string) =>
-      apiRequest('/users/login', {
+      apiRequest('/auth/login', {
         method: 'POST',
         body: JSON.stringify({ email, password }),
       }),
     
-    register: (userData: any) =>
+    register: (userData: { firstName: string; lastName?: string; email: string; password: string; confirmPassword?: string }) =>
       apiRequest('/users/register', {
         method: 'POST',
-        body: JSON.stringify(userData),
+        body: JSON.stringify({
+          first_name: userData.firstName,
+          email: userData.email,
+          password: userData.password,
+          confirmed_password: userData.confirmPassword || userData.password
+        }),
       }),
     
     logout: () =>

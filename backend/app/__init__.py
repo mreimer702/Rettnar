@@ -16,16 +16,23 @@ from app.blueprints.reviews import reviews_bp
 from app.blueprints.payments import payments_bp
 from app.blueprints.bookings import bookings_bp
 from app.blueprints.locations import locations_bp
+from config import config
 
-def create_app(config_name):
+def create_app(config_name='default'):
     app = Flask(__name__)
-    app.config.from_object(f'config.{config_name}')
+    app.config.from_object(config[config_name])
 
     # Initialize extensions
     CORS(app, origins=['*'])
     db.init_app(app)
     ma.init_app(app)
     cache.init_app(app)
+    limiter.init_app(app)
+
+    # Health check endpoint
+    @app.route('/health')
+    def health_check():
+        return {'status': 'healthy', 'config': config_name}, 200
 
     # Register blueprints with authentication applied
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
@@ -37,7 +44,7 @@ def create_app(config_name):
     app.register_blueprint(categories_bp, url_prefix='/api/categories')
     app.register_blueprint(delivery_bp, url_prefix='/api/delivery')
     app.register_blueprint(features_bp, url_prefix='/api/features')
-    app.register_blueprint(messaging_bp, url_prefix='/api/messaging')
+    app.register_blueprint(messaging_bp, url_prefix='/api/messages')
     app.register_blueprint(reviews_bp, url_prefix='/api/reviews')
     app.register_blueprint(payments_bp, url_prefix='/api/payments')
     app.register_blueprint(bookings_bp, url_prefix='/api/bookings')  

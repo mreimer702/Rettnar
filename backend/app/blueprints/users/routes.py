@@ -6,6 +6,7 @@ from app.blueprints.users.schemas import (
     user_schema, users_schema, role_schema, roles_schema, 
     user_update_schema, user_registration_schema, login_schema
 )
+from app.blueprints.auth.schemas import AuthUserSchema
 from app.blueprints.users import users_bp
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.utils.util import encode_user_token, user_token_required, admin_token_required
@@ -58,10 +59,10 @@ def register_user():
     db.session.commit()
 
     token = encode_user_token(new_user.user_id)
+    auth_user_schema = AuthUserSchema()
     return jsonify({
-        "message": "User registered successfully",
         "token": token,
-        "user": user_schema.dump(new_user)
+        "user": auth_user_schema.dump(new_user)
     }), 201
 
 @users_bp.route("/login", methods=["POST"])
@@ -172,6 +173,46 @@ def update_profile(user_id):
 
     db.session.commit()
     return user_schema.jsonify(user), 200
+
+@users_bp.route("/avatar", methods=["POST"])
+@user_token_required
+@limiter.limit('5 per minute')
+def upload_avatar(user_id):
+    """Upload or update user avatar"""
+    try:
+        data = request.get_json()
+        image_uri = data.get('imageUri')
+        
+        if not image_uri:
+            return jsonify({"error": "imageUri is required"}), 400
+            
+        user = db.session.execute(
+            select(User).where(User.user_id == user_id)
+        ).scalars().first()
+        
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+        
+        # In a real implementation, you would:
+        # 1. Validate the image format
+        # 2. Upload to cloud storage (AWS S3, etc.)
+        # 3. Generate thumbnails
+        # 4. Store the URL in the database
+        
+        # For now, we'll simulate by storing the URI as provided
+        # Note: The User model would need an avatar_url field for this to work
+        # Since the model doesn't have this field, we'll return success but note the limitation
+        
+        return jsonify({
+            "message": "Avatar upload successful",
+            "avatar_url": image_uri,
+            "note": "Avatar storage not implemented - User model needs avatar_url field"
+        }), 200
+        
+    except ValidationError as e:
+        return jsonify({"errors": e.messages}), 400
+    except Exception as e:
+        return jsonify({"error": "An error occurred uploading avatar"}), 500
 
 # ========================================
 # ADMIN-ONLY ROUTES

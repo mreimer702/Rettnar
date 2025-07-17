@@ -50,7 +50,13 @@ export default function SignupScreen() {
     try {
       setLoading(true);
       
-      const response = await api.auth.register({ firstName, lastName, email, password }) as { user?: { firstName: string }; token?: string };
+      const response = await api.auth.register({ 
+        firstName, 
+        lastName, 
+        email, 
+        password, 
+        confirmPassword 
+      }) as { user?: { firstName: string }; token?: string };
       console.log('API response:', response);
       if (!response || !response.user) {
         throw new Error('Invalid response from server');
@@ -65,9 +71,17 @@ export default function SignupScreen() {
       Alert.alert('Signup Successful', `Welcome, ${response.user.firstName}`);
 
       router.replace('../(tabs)');  
-    } catch (error) {
+    } catch (error: any) {
       console.error('Signup error:', error);
-      Alert.alert('Error', 'Signup failed');
+      let errorMessage = 'Signup failed';
+      
+      if (error.message) {
+        errorMessage = error.message;
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      }
+      
+      Alert.alert('Error', errorMessage);
     } finally {
       setLoading(false);
     }
