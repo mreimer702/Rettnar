@@ -6,9 +6,12 @@ import { ArrowLeft, Eye, EyeOff } from 'lucide-react-native';
 import { api } from '../../services/api';
 import { TokenManager } from '../../services/TokenManager'; 
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useTranslation } from 'react-i18next';
+import '../../services/i18n.js';
 
 export default function SignupScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -80,30 +83,30 @@ export default function SignupScreen() {
           >
             <ArrowLeft size={24} color="#1F3A93" strokeWidth={2} />
           </TouchableOpacity>
-          <Text style={styles.title}>Create Account</Text>
-          <Text style={styles.subtitle}>Join Renttar and start renting today</Text>
+          <Text style={styles.title}>{t('createAccount')}</Text>
+          <Text style={styles.subtitle}>{t('joinRenttar')}</Text>
         </View>
 
         <View style={styles.form}>
           <View style={styles.nameRow}>
             <View style={[styles.inputGroup, styles.nameInput]}>
-              <Text style={styles.label}>First Name</Text>
+            <Text style={styles.label}>{t('firstName')}</Text>
               <TextInput
                 style={styles.input}
                 value={formData.firstName}
                 onChangeText={(value) => handleInputChange('firstName', value)}
-                placeholder="John"
+                placeholder={t('placeholderFirstName')}
                 placeholderTextColor="#8E8E93"
                 autoCapitalize="words"
               />
             </View>
             <View style={[styles.inputGroup, styles.nameInput]}>
-              <Text style={styles.label}>Last Name</Text>
+            <Text style={styles.label}>{t('lastName')}</Text>
               <TextInput
                 style={styles.input}
                 value={formData.lastName}
                 onChangeText={(value) => handleInputChange('lastName', value)}
-                placeholder="Doe"
+                placeholder={t('placeholderLastName')}
                 placeholderTextColor="#8E8E93"
                 autoCapitalize="words"
               />
@@ -111,12 +114,12 @@ export default function SignupScreen() {
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Email</Text>
+          <Text style={styles.label}>{t('emailLabel')}</Text>
             <TextInput
               style={styles.input}
               value={formData.email}
               onChangeText={(value) => handleInputChange('email', value)}
-              placeholder="john.doe@example.com"
+              placeholder={t('enterEmailPlaceholder')}
               placeholderTextColor="#8E8E93"
               keyboardType="email-address"
               autoCapitalize="none"
@@ -125,13 +128,13 @@ export default function SignupScreen() {
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Password</Text>
+            <Text style={styles.label}>{t('passwordLabel')}</Text>
             <View style={styles.passwordContainer}>
               <TextInput
                 style={styles.passwordInput}
                 value={formData.password}
                 onChangeText={(value) => handleInputChange('password', value)}
-                placeholder="Create a password"
+                placeholder={t('createPasswordPlaceholder')}
                 placeholderTextColor="#8E8E93"
                 secureTextEntry={!showPassword}
                 autoCapitalize="none"
@@ -151,13 +154,13 @@ export default function SignupScreen() {
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Confirm Password</Text>
+          <Text style={styles.label}>{t('confirmPassword')}</Text>
             <View style={styles.passwordContainer}>
               <TextInput
                 style={styles.passwordInput}
                 value={formData.confirmPassword}
                 onChangeText={(value) => handleInputChange('confirmPassword', value)}
-                placeholder="Confirm your password"
+                placeholder={t('confirmPasswordPlaceholder')}
                 placeholderTextColor="#8E8E93"
                 secureTextEntry={!showConfirmPassword}
                 autoCapitalize="none"
@@ -182,14 +185,14 @@ export default function SignupScreen() {
             disabled={loading}
           >
             <Text style={styles.signupButtonText}>
-              {loading ? 'Creating Account...' : 'Create Account'}
+            {loading ? t('creatingAccount') : t('createAccount')}
             </Text>
           </TouchableOpacity>
 
           <View style={styles.loginPrompt}>
-            <Text style={styles.loginPromptText}>Already have an account? </Text>
+          <Text style={styles.loginPromptText}>{t('alreadyHaveAccount')} </Text>
             <TouchableOpacity onPress={() => router.push('/(auth)/login')}>
-              <Text style={styles.loginLink}>Sign In</Text>
+            <Text style={styles.loginLink}>{t('signIn')}</Text>
             </TouchableOpacity>
           </View>
         </View>

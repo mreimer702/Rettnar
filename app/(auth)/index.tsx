@@ -2,35 +2,38 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Button } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
+import '../../services/i18n.js';
 
 export default function AuthIndex() {
   const router = useRouter();
+  const { t } = useTranslation();
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        <Text style={styles.title}>Welcome to Renttar</Text>
-        <Text style={styles.subtitle}>Choose how you'd like to continue</Text>
+        <Text style={styles.title}>{t('welcome')}</Text>
+        <Text style={styles.subtitle}>{t('choose')}</Text>
 
         <TouchableOpacity
           style={styles.button}
           onPress={() => router.push('/login')}
         >
-          <Text style={styles.buttonText}>Sign In</Text>
+          <Text style={styles.buttonText}>{t('signIn')}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.button}
           onPress={() => router.push('/signup')}
         >
-          <Text style={styles.buttonText}>Sign Up</Text>
+          <Text style={styles.buttonText}>{t('signUp')}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={[styles.button, styles.guestButton]}
           onPress={() => router.push('/(tabs)')}
         >
-          <Text style={styles.buttonText}>Continue as Guest</Text>
+          <Text style={styles.buttonText}>{t('guest')}</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

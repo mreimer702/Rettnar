@@ -4,8 +4,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react-native';
 import { api } from '../../services/api'; 
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { TokenManager } from '../../services/TokenManager'; 
+import { useTranslation } from 'react-i18next';
+import { TokenManager } from '../../services/TokenManager';
+import '../../services/i18n.js'; 
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -13,6 +14,7 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const { t } = useTranslation();
 
   const handleLogin = async () => {
     try {
@@ -48,18 +50,18 @@ export default function LoginScreen() {
         >
           <ArrowLeft size={24} color="#1F3A93" strokeWidth={2} />
         </TouchableOpacity>
-        <Text style={styles.title}>Welcome Back</Text>
-        <Text style={styles.subtitle}>Sign in to your Renttar account</Text>
+        <Text style={styles.title}>{t('welcomeBack')}</Text>
+<Text style={styles.subtitle}>{t('signInSubtitle')}</Text>
       </View>
 
       <View style={styles.form}>
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Email</Text>
+        <Text style={styles.label}>{t('emailLabel')}</Text>
           <TextInput
             style={styles.input}
             value={email}
             onChangeText={setEmail}
-            placeholder="Enter your email"
+            placeholder={t('emailPlaceholder')}
             placeholderTextColor="#8E8E93"
             keyboardType="email-address"
             autoCapitalize="none"
@@ -68,13 +70,13 @@ export default function LoginScreen() {
         </View>
 
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Password</Text>
+        <Text style={styles.label}>{t('passwordLabel')}</Text>
           <View style={styles.passwordContainer}>
             <TextInput
               style={styles.passwordInput}
               value={password}
               onChangeText={setPassword}
-              placeholder="Enter your password"
+              placeholder={t('passwordPlaceholder')}
               placeholderTextColor="#8E8E93"
               secureTextEntry={!showPassword}
               autoCapitalize="none"
@@ -94,7 +96,7 @@ export default function LoginScreen() {
         </View>
 
         <TouchableOpacity style={styles.forgotPassword}>
-          <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+        <Text style={styles.forgotPasswordText}>{t('forgotPassword')}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -103,14 +105,14 @@ export default function LoginScreen() {
           disabled={loading}
         >
           <Text style={styles.loginButtonText}>
-            {loading ? 'Signing In...' : 'Sign In'}
+          {loading ? t('signingIn') : t('signIn')}
           </Text>
         </TouchableOpacity>
 
         <View style={styles.signupPrompt}>
-          <Text style={styles.signupPromptText}>Don't have an account? </Text>
+        <Text style={styles.signupPromptText}>{t('noAccount')} </Text>
           <TouchableOpacity onPress={() => router.push('/(auth)/signup')}>
-            <Text style={styles.signupLink}>Sign Up</Text>
+          <Text style={styles.signupLink}>{t('signUp')}</Text>
           </TouchableOpacity>
         </View>
       </View>
