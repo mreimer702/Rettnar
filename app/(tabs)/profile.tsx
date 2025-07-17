@@ -1,8 +1,16 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Image, Switch } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Settings, CreditCard as Edit3, Star, MapPin, Calendar, Heart, CreditCard, Bell, Shield, CircleHelp as HelpCircle, LogOut, Award, TrendingUp, Eye, Users } from 'lucide-react-native';
+import { CreditCard as Edit3, Star, MapPin, Calendar, Heart, CreditCard, Bell, Shield, CircleHelp as HelpCircle, LogOut, Award, TrendingUp, Eye, Users, LucideIcon, FileText } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Alert } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { TokenManager } from '../../services/TokenManager'; 
+
+const router = useRouter();
 
 const userStats = [
   { label: 'Items Rented', value: '24', color: '#3B82F6', icon: Calendar },
@@ -14,10 +22,11 @@ const userStats = [
 const menuItems = [
   { id: 1, title: 'My Bookings', icon: Calendar, badge: '3' },
   { id: 2, title: 'My Listings', icon: Heart, badge: '8' },
-  { id: 3, title: 'Payment Methods', icon: CreditCard },
-  { id: 4, title: 'Notifications', icon: Bell, toggle: true },
-  { id: 5, title: 'Privacy & Security', icon: Shield },
-  { id: 6, title: 'Help & Support', icon: HelpCircle },
+  { id: 3, title: 'My Drafts', icon: FileText, badge: '5' },
+  { id: 4, title: 'Payment Methods', icon: CreditCard },
+  { id: 5, title: 'Notifications', icon: Bell, toggle: true },
+  { id: 6, title: 'Privacy & Security', icon: Shield },
+  { id: 7, title: 'Help & Support', icon: HelpCircle },
 ];
 
 const recentActivity = [
@@ -42,7 +51,69 @@ const recentActivity = [
 ];
 
 export default function ProfileScreen() {
+
+  type RootStackParamList = {
+  Bookings: undefined;
+  Listings: undefined;
+  PaymentMethods: undefined;
+  PrivacySecurity: undefined;
+  HelpSupport: undefined;
+};
+
+const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+
+function handlePress(
+  item:
+    | { id: number; title: string; icon: LucideIcon; badge: string; toggle?: undefined }
+    | { id: number; title: string; icon: LucideIcon; badge?: undefined; toggle?: undefined }
+    | { id: number; title: string; icon: LucideIcon; toggle: boolean; badge?: undefined }
+): void {
+  switch (item.title) {
+    case 'My Bookings':
+      router.push('/features/profile/Bookings');
+      break;
+    case 'My Listings':
+      router.push('/features/profile/Listings');
+      break;
+    case 'My Drafts':
+      router.push('/features/profile/Drafts');
+      break;
+    case 'Payment Methods':
+      router.push('/features/profile/PaymentMethods');
+      break;
+    case 'Notifications':
+      // Handled by toggle/switch
+      break;
+    case 'Privacy & Security':
+      router.push('/features/profile/PrivacySecurity');
+      break;
+    case 'Help & Support':
+      router.push('/features/profile/HelpSupport');
+      break;
+    default:
+      Alert.alert('Info', 'Action not implemented.');
+  }
+}
+
+const handleLogout = async () => {
+  try {
+    await TokenManager.removeToken();
+
+    const storedToken = await AsyncStorage.getItem('auth_token');
+    console.log('Token after logout:', storedToken); 
+    if (storedToken) {
+      throw new Error('Failed to remove token');
+    }
+    // Navigate to the login screen
+    router.push('/(auth)');
+    Alert.alert('Logged Out', 'You have been successfully logged out.');
+  } catch (error) {
+    console.error('Logout error:', error);
+    Alert.alert('Error', 'Failed to log out.');
+  }
+};
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -75,7 +146,8 @@ export default function ProfileScreen() {
                 </View>
               </View>
             </View>
-            <TouchableOpacity style={styles.editButton}>
+            <TouchableOpacity style={styles.editButton}
+            onPress={() => router.push('/features/profile/Account')}>
               <Edit3 size={16} color="#3B82F6" strokeWidth={2} />
             </TouchableOpacity>
           </View>
@@ -102,14 +174,16 @@ export default function ProfileScreen() {
           <Text style={styles.sectionTitle}>Quick Actions</Text>
           
           <View style={styles.quickActions}>
-            <TouchableOpacity style={styles.quickAction}>
+            <TouchableOpacity style={styles.quickAction}
+            onPress={() => router.push('/(tabs)/search')}>
               <View style={[styles.quickActionIcon, { backgroundColor: '#EFF6FF' }]}>
                 <Calendar size={20} color="#3B82F6" strokeWidth={2} />
               </View>
               <Text style={styles.quickActionText}>Book Item</Text>
             </TouchableOpacity>
             
-            <TouchableOpacity style={styles.quickAction}>
+            <TouchableOpacity style={styles.quickAction}
+            onPress={() => router.push('/(tabs)/list')}>
               <View style={[styles.quickActionIcon, { backgroundColor: '#ECFDF5' }]}>
                 <Heart size={20} color="#10B981" strokeWidth={2} />
               </View>
@@ -135,7 +209,7 @@ export default function ProfileScreen() {
           <Text style={styles.sectionTitle}>Account</Text>
           
           {menuItems.map((item) => (
-            <TouchableOpacity key={item.id} style={styles.menuItem}>
+            <TouchableOpacity key={item.id} style={styles.menuItem} onPress={() => handlePress(item)}>
               <View style={styles.menuItemLeft}>
                 <View style={styles.menuIcon}>
                   <item.icon size={20} color="#3B82F6" strokeWidth={2} />
@@ -202,7 +276,8 @@ export default function ProfileScreen() {
           {/* Logout */}
           <TouchableOpacity style={styles.logoutButton}>
             <LogOut size={20} color="#EF4444" strokeWidth={2} />
-            <Text style={styles.logoutText}>Sign Out</Text>
+            <Text style={styles.logoutText}
+            onPress={handleLogout}>Sign Out</Text>
           </TouchableOpacity>
 
           <Text style={styles.version}>Renttar v1.0.0</Text>

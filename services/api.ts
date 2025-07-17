@@ -1,9 +1,25 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Constants from 'expo-constants';
 
 // API Base Configuration
 const API_BASE_URL = __DEV__ 
-  ? 'http://localhost:5000/api' 
+  ? 'http://localhost:5001/api' 
   : 'https://your-production-api.com/api';
+
+// Environment control for mock API
+// Can be controlled via app.config.js or environment variables
+const USE_MOCK_API = Constants.expoConfig?.extra?.useMockApi === 'true' || 
+                     (__DEV__ && Constants.expoConfig?.extra?.useMockApi !== 'false');
+
+// Debug logging
+if (__DEV__) {
+  console.log('🔧 API Configuration:', {
+    isDev: __DEV__,
+    useMockApi: USE_MOCK_API,
+    apiBaseUrl: API_BASE_URL,
+    expoConfig: Constants.expoConfig?.extra
+  });
+}
 
 // Auth Token Management
 export const TokenManager = {
@@ -33,7 +49,7 @@ export const TokenManager = {
   }
 };
 
-// Generic API Request Function
+// Generic API Request Function with Token Refresh
 async function apiRequest<T>(
   endpoint: string, 
   options: RequestInit = {}
@@ -49,18 +65,33 @@ async function apiRequest<T>(
     ...options,
   };
 
-  // For development, simulate API responses
-  if (__DEV__) {
+  // For development, simulate API responses (can be disabled with USE_MOCK_API=false)
+  if (USE_MOCK_API) {
     return simulateApiResponse<T>(endpoint, config);
   }
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
-  
-  if (!response.ok) {
-    throw new Error(`API Error: ${response.status}`);
-  }
+  try {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+    
+    // Handle token expiration
+    if (response.status === 401 && token) {
+      console.log('Token expired, attempting refresh...');
+      await TokenManager.removeToken();
+      throw new Error('Session expired. Please log in again.');
+    }
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || errorData.error || `API Error: ${response.status}`);
+    }
 
-  return response.json();
+    return response.json();
+  } catch (error) {
+    if (error instanceof Error) {
+      throw error;
+    }
+    throw new Error('Network error occurred');
+  }
 }
 
 // Simulated API Responses for Development
@@ -80,7 +111,7 @@ function simulateApiResponse<T>(endpoint: string, config: RequestInit): Promise<
             location: { lat: 37.7749, lng: -122.4194, address: 'San Francisco, CA' }
           }
         },
-        'POST:/auth/register': {
+        'POST:/users/register': {
           token: 'mock_jwt_token_12345',
           user: {
             id: '1',
@@ -91,8 +122,8 @@ function simulateApiResponse<T>(endpoint: string, config: RequestInit): Promise<
         },
         'POST:/auth/logout': { success: true },
 
-        // Items Endpoints
-        'GET:/items/nearby': {
+        // Listings Endpoints
+        'GET:/listings/nearby': {
           items: [
             {
               id: '1',
@@ -132,7 +163,7 @@ function simulateApiResponse<T>(endpoint: string, config: RequestInit): Promise<
             }
           ]
         },
-        'GET:/items/1': {
+        'GET:/listings/1': {
           id: '1',
           title: 'Professional DSLR Camera Kit',
           description: 'Complete DSLR camera setup perfect for professional photography and videography. Includes camera body, multiple lenses (50mm, 85mm, 24-70mm), tripod, extra batteries, memory cards, and carrying case.',
@@ -175,7 +206,7 @@ function simulateApiResponse<T>(endpoint: string, config: RequestInit): Promise<
             pickup: true
           }
         },
-        'POST:/items': {
+        'POST:/listings': {
           id: '3',
           title: 'New Item',
           message: 'Item created successfully'
@@ -227,7 +258,7 @@ function simulateApiResponse<T>(endpoint: string, config: RequestInit): Promise<
             }
           ]
         },
-        'PUT:/bookings/booking_123/status': {
+        'PUT:/bookings/booking_123': {
           success: true,
           booking: {
             id: 'booking_123',
@@ -281,7 +312,7 @@ function simulateApiResponse<T>(endpoint: string, config: RequestInit): Promise<
         },
 
         // Notifications Endpoints
-        'GET:/notifications': {
+        'GET:/notifications/general': {
           notifications: [
             {
               id: 'notif_1',
@@ -293,7 +324,7 @@ function simulateApiResponse<T>(endpoint: string, config: RequestInit): Promise<
             }
           ]
         },
-        'PUT:/notifications/notif_1/read': { success: true }
+        'PUT:/notifications/general/notif_1': { success: true }
       };
 
       const method = config.method || 'GET';
@@ -314,38 +345,43 @@ export const api = {
         body: JSON.stringify({ email, password }),
       }),
     
-    register: (userData: any) =>
-      apiRequest('/auth/register', {
+    register: (userData: { firstName: string; lastName?: string; email: string; password: string; confirmPassword?: string }) =>
+      apiRequest('/users/register', {
         method: 'POST',
-        body: JSON.stringify(userData),
+        body: JSON.stringify({
+          first_name: userData.firstName,
+          email: userData.email,
+          password: userData.password,
+          confirmed_password: userData.confirmPassword || userData.password
+        }),
       }),
     
     logout: () =>
       apiRequest('/auth/logout', { method: 'POST' }),
   },
 
-  // Items
-  items: {
+  // Listings
+  listings: {
     getNearby: (lat: number, lng: number, radius: number = 10) =>
-      apiRequest(`/items/nearby?lat=${lat}&lng=${lng}&radius=${radius}`),
-    
+      apiRequest(`/listings/nearby?lat=${lat}&lng=${lng}&radius=${radius}`),
+
     getById: (id: string) =>
-      apiRequest(`/items/${id}`),
-    
+      apiRequest(`/listings/${id}`),
+
     create: (itemData: any) =>
-      apiRequest('/items', {
+      apiRequest('/listings', {
         method: 'POST',
         body: JSON.stringify(itemData),
       }),
     
     update: (id: string, itemData: any) =>
-      apiRequest(`/items/${id}`, {
+      apiRequest(`/listings/${id}`, {
         method: 'PUT',
         body: JSON.stringify(itemData),
       }),
     
     search: (query: string, filters: any = {}) =>
-      apiRequest(`/items/search?q=${query}&${new URLSearchParams(filters)}`),
+      apiRequest(`/listings/search?q=${query}&${new URLSearchParams(filters)}`),
   },
 
   // Bookings
@@ -363,14 +399,14 @@ export const api = {
       apiRequest(`/bookings/${id}`),
     
     updateStatus: (id: string, status: string) =>
-      apiRequest(`/bookings/${id}/status`, {
+      apiRequest(`/bookings/${id}`, {
         method: 'PUT',
         body: JSON.stringify({ status }),
       }),
-    
+
     cancel: (id: string, reason?: string) =>
-      apiRequest(`/bookings/${id}/cancel`, {
-        method: 'PUT',
+      apiRequest(`/bookings/${id}`, {
+        method: 'DELETE',
         body: JSON.stringify({ reason }),
       }),
   },
@@ -393,32 +429,42 @@ export const api = {
   // Notifications
   notifications: {
     getAll: () =>
-      apiRequest('/notifications'),
-    
+      apiRequest('/notifications/general'),
+
     markAsRead: (id: string) =>
-      apiRequest(`/notifications/${id}/read`, {
+      apiRequest(`/notifications/general/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify({ is_read: true }),
+      }),
+
+    markAllAsRead: () =>
+      apiRequest('/notifications/general/mark-all-read', {
         method: 'PUT',
       }),
-    
-    markAllAsRead: () =>
-      apiRequest('/notifications/read-all', {
-        method: 'PUT',
+  },
+
+  // Payments
+  payments: {
+    addMethod: (paymentData: any) =>
+      apiRequest('/payments', {
+        method: 'POST',
+        body: JSON.stringify(paymentData),
       }),
   },
 
   // User Profile
   user: {
     getProfile: () =>
-      apiRequest('/user/profile'),
-    
+      apiRequest('/users/profile'),
+
     updateProfile: (profileData: any) =>
-      apiRequest('/user/profile', {
+      apiRequest('/users/profile', {
         method: 'PUT',
         body: JSON.stringify(profileData),
       }),
     
     uploadAvatar: (imageUri: string) =>
-      apiRequest('/user/avatar', {
+      apiRequest('/users/avatar', {
         method: 'POST',
         body: JSON.stringify({ imageUri }),
       }),

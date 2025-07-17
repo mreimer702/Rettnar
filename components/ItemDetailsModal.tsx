@@ -40,7 +40,7 @@ export default function ItemDetailsModal({ itemId, isVisible, onClose }: ItemDet
     
     setLoading(true);
     try {
-      const response = await api.items.getById(itemId);
+      const response = await api.listings.getById(itemId);
       setItem(response);
     } catch (error) {
       console.error('Failed to load item details:', error);

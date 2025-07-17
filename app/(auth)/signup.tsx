@@ -3,9 +3,15 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView 
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react-native';
+import { api } from '../../services/api';
+import { TokenManager } from '../../services/TokenManager'; 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useTranslation } from 'react-i18next';
+import '../../services/i18n.js';
 
 export default function SignupScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -34,20 +40,51 @@ export default function SignupScreen() {
       return;
     }
 
-    if (password.length < 6) {
-      Alert.alert('Error', 'Password must be at least 6 characters');
+    if (password.length < 8) {
+      Alert.alert('Error', 'Password must be at least 8 characters');
       return;
     }
 
     setLoading(true);
     
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      setLoading(true);
+      
+      const response = await api.auth.register({ 
+        firstName, 
+        lastName, 
+        email, 
+        password, 
+        confirmPassword 
+      }) as { user?: { firstName: string }; token?: string };
+      console.log('API response:', response);
+      if (!response || !response.user) {
+        throw new Error('Invalid response from server');
+      }
+      if (response.token) {
+        await TokenManager.setToken(response.token);
+      }
+  
+      const storedToken = await AsyncStorage.getItem('auth_token');
+      console.log('Stored token:', storedToken);
+  
+      Alert.alert('Signup Successful', `Welcome, ${response.user.firstName}`);
+
+      router.replace('../(tabs)');  
+    } catch (error: any) {
+      console.error('Signup error:', error);
+      let errorMessage = 'Signup failed';
+      
+      if (error.message) {
+        errorMessage = error.message;
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      }
+      
+      Alert.alert('Error', errorMessage);
+    } finally {
       setLoading(false);
-      Alert.alert('Success', 'Account created successfully!', [
-        { text: 'OK', onPress: () => router.replace('/(tabs)') }
-      ]);
-    }, 1500);
+    }
   };
 
   return (
@@ -60,30 +97,30 @@ export default function SignupScreen() {
           >
             <ArrowLeft size={24} color="#1F3A93" strokeWidth={2} />
           </TouchableOpacity>
-          <Text style={styles.title}>Create Account</Text>
-          <Text style={styles.subtitle}>Join Renttar and start renting today</Text>
+          <Text style={styles.title}>{t('createAccount')}</Text>
+          <Text style={styles.subtitle}>{t('joinRenttar')}</Text>
         </View>
 
         <View style={styles.form}>
           <View style={styles.nameRow}>
             <View style={[styles.inputGroup, styles.nameInput]}>
-              <Text style={styles.label}>First Name</Text>
+            <Text style={styles.label}>{t('firstName')}</Text>
               <TextInput
                 style={styles.input}
                 value={formData.firstName}
                 onChangeText={(value) => handleInputChange('firstName', value)}
-                placeholder="John"
+                placeholder={t('placeholderFirstName')}
                 placeholderTextColor="#8E8E93"
                 autoCapitalize="words"
               />
             </View>
             <View style={[styles.inputGroup, styles.nameInput]}>
-              <Text style={styles.label}>Last Name</Text>
+            <Text style={styles.label}>{t('lastName')}</Text>
               <TextInput
                 style={styles.input}
                 value={formData.lastName}
                 onChangeText={(value) => handleInputChange('lastName', value)}
-                placeholder="Doe"
+                placeholder={t('placeholderLastName')}
                 placeholderTextColor="#8E8E93"
                 autoCapitalize="words"
               />
@@ -91,12 +128,12 @@ export default function SignupScreen() {
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Email</Text>
+          <Text style={styles.label}>{t('emailLabel')}</Text>
             <TextInput
               style={styles.input}
               value={formData.email}
               onChangeText={(value) => handleInputChange('email', value)}
-              placeholder="john.doe@example.com"
+              placeholder={t('enterEmailPlaceholder')}
               placeholderTextColor="#8E8E93"
               keyboardType="email-address"
               autoCapitalize="none"
@@ -105,13 +142,14 @@ export default function SignupScreen() {
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Password</Text>
+            <Text style={styles.label}>{t('passwordLabel')}</Text>
+            <Text style={styles.passwordLengthText}>{t('passwordLengthError')} </Text>
             <View style={styles.passwordContainer}>
               <TextInput
                 style={styles.passwordInput}
                 value={formData.password}
                 onChangeText={(value) => handleInputChange('password', value)}
-                placeholder="Create a password"
+                placeholder={t('createPasswordPlaceholder')}
                 placeholderTextColor="#8E8E93"
                 secureTextEntry={!showPassword}
                 autoCapitalize="none"
@@ -131,13 +169,13 @@ export default function SignupScreen() {
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Confirm Password</Text>
+          <Text style={styles.label}>{t('confirmPassword')}</Text>
             <View style={styles.passwordContainer}>
               <TextInput
                 style={styles.passwordInput}
                 value={formData.confirmPassword}
                 onChangeText={(value) => handleInputChange('confirmPassword', value)}
-                placeholder="Confirm your password"
+                placeholder={t('confirmPasswordPlaceholder')}
                 placeholderTextColor="#8E8E93"
                 secureTextEntry={!showConfirmPassword}
                 autoCapitalize="none"
@@ -162,14 +200,14 @@ export default function SignupScreen() {
             disabled={loading}
           >
             <Text style={styles.signupButtonText}>
-              {loading ? 'Creating Account...' : 'Create Account'}
+            {loading ? t('creatingAccount') : t('createAccount')}
             </Text>
           </TouchableOpacity>
 
           <View style={styles.loginPrompt}>
-            <Text style={styles.loginPromptText}>Already have an account? </Text>
+          <Text style={styles.loginPromptText}>{t('alreadyHaveAccount')} </Text>
             <TouchableOpacity onPress={() => router.push('/(auth)/login')}>
-              <Text style={styles.loginLink}>Sign In</Text>
+            <Text style={styles.loginLink}>{t('signIn')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -294,6 +332,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Inter-Regular',
     color: '#8E8E93',
+  },
+  passwordLengthText: {
+    fontSize: 16,
+    fontFamily: 'Inter-Regular',
+    color: '#8E8E93',
+    paddingBottom: 16,
   },
   loginLink: {
     fontSize: 16,

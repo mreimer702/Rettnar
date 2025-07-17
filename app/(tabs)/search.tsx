@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, TextInput, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Search, Filter, Star, MapPin, SlidersHorizontal, Grid3x3 as Grid3X3, List } from 'lucide-react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 
 
 // Backend Integration Note:
@@ -36,19 +38,19 @@ const searchResults = [
     reviews: 24,
     image: 'https://images.pexels.com/photos/90946/pexels-photo-90946.jpeg?auto=compress&cs=tinysrgb&w=600',
     distance: '0.5 km',
-    category: 'Photography',
+    category: 'Equipment',
     owner: 'Mike Chen',
     verified: true,
   },
   {
     id: '2',
-    title: 'DeWalt Power Drill Set',
-    price: 25,
+    title: 'Downtown Loft Studio',
+    price: 130,
     rating: 4.9,
-    reviews: 18,
-    image: 'https://images.pexels.com/photos/209235/pexels-photo-209235.jpeg?auto=compress&cs=tinysrgb&w=600',
+    reviews: 29,
+    image: 'https://images.pexels.com/photos/323705/pexels-photo-323705.jpeg?auto=compress&cs=tinysrgb&w=600',
     distance: '1.2 km',
-    category: 'Tools',
+    category: 'Venues',
     owner: 'Sarah Johnson',
     verified: false,
   },
@@ -60,45 +62,74 @@ const searchResults = [
     reviews: 31,
     image: 'https://images.pexels.com/photos/205421/pexels-photo-205421.jpeg?auto=compress&cs=tinysrgb&w=600',
     distance: '0.8 km',
-    category: 'Electronics',
+    category: 'Equipment',
     owner: 'David Park',
     verified: true,
   },
   {
     id: '4',
-    title: 'Sony A7R IV Camera',
-    price: 85,
-    rating: 4.9,
-    reviews: 42,
-    image: 'https://images.pexels.com/photos/51383/photo-camera-subject-photographer-51383.jpeg?auto=compress&cs=tinysrgb&w=600',
+    title: '2022 Jeep Wrangler',
+    price: 95,
+    rating: 4.8,
+    reviews: 37,
+    image: 'https://images.pexels.com/photos/112460/pexels-photo-112460.jpeg?auto=compress&cs=tinysrgb&w=600',
     distance: '2.1 km',
-    category: 'Photography',
+    category: 'Vehicles',
     owner: 'Emma Wilson',
     verified: true,
   },
 ];
+
 
 const filters = [
   { id: 1, name: 'Price', icon: '💰', active: false },
   { id: 2, name: 'Distance', icon: '📍', active: true },
   { id: 3, name: 'Rating', icon: '⭐', active: false },
   { id: 4, name: 'Category', icon: '📂', active: false },
-  { id: 5, name: 'Instant Book', icon: '⚡', active: false },
+  { id: 5, name: 'Subcategory', icon: '📂', active: false },
+  { id: 6, name: 'Instant Book', icon: '⚡', active: false },
 ];
 
+const subcategoriesMap: Record<string, string[]> = {
+  Equipment: ['Audio', 'Camping', 'Equipment', 'Photography', 'Tools'],
+  Venues: ['Studios', 'Ceremonies', 'Events', 'Retail', 'Workspaces'],
+  Vehicles: ['Adventure', 'Commericial', 'Luxury', 'Personal', 'Special'],
+};
+
 export default function SearchScreen() {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState<string[]>(['Distance']);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
 
-  const handleFilterToggle = (filterName: string) => {
-    setSelectedFilters(prev => 
-      prev.includes(filterName) 
-        ? prev.filter(f => f !== filterName)
-        : [...prev, filterName]
-    );
-  };
+
+const handleFilterToggle = (filterName: string) => {
+  if (filterName === 'Category') {
+    setShowFilters(true); // force filters section open
+  }
+
+  if (Object.keys(subcategoriesMap).includes(filterName)) {
+    const isSameCategory = selectedCategory === filterName;
+    setSelectedCategory(isSameCategory ? null : filterName);
+    setSelectedSubcategory(null); // Reset subcategory when category changes
+  }
+
+  setSelectedFilters(prev =>
+    prev.includes(filterName)
+      ? prev.filter(f => f !== filterName)
+      : [...prev, filterName]
+  );
+};
+
+const filteredResults = searchResults.filter(item => {
+  const matchCategory = !selectedCategory || item.category === selectedCategory;
+  const matchSubcategory = !selectedSubcategory || item.title.includes(selectedSubcategory); // customize logic as needed
+  return matchCategory && matchSubcategory;
+});
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -107,24 +138,34 @@ export default function SearchScreen() {
         <Text style={styles.subtitle}>Find exactly what you need</Text>
       </View>
 
-      <View style={styles.searchSection}>
-        <View style={styles.searchContainer}>
-          <Search size={20} color="#64748B" strokeWidth={2} />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search for items, tools, gear..."
-            placeholderTextColor="#94A3B8"
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-          />
-        </View>
-        <TouchableOpacity 
-          style={[styles.filterButton, showFilters && styles.filterButtonActive]}
-          onPress={() => setShowFilters(!showFilters)}
-        >
-          <SlidersHorizontal size={20} color={showFilters ? '#FFFFFF' : '#3B82F6'} strokeWidth={2} />
-        </TouchableOpacity>
-      </View>
+  <View style={styles.searchBarRow}>
+  <View style={styles.searchContainer}>
+    <Ionicons name="search" size={20} color="#64748B" style={{ marginRight: 8 }} />
+    <TextInput
+      style={styles.searchInput}
+      placeholder="Search for items, tools, gear..."
+      placeholderTextColor="#94A3B8"
+      value={searchQuery}
+      onChangeText={setSearchQuery}
+    />
+  </View>
+
+  <TouchableOpacity
+    style={styles.searchButtonInline}
+    onPress={() => router.push('/features/SearchResult' as any)}
+    activeOpacity={0.8}
+  >
+    <Text style={styles.searchButtonText}>Go</Text>
+  </TouchableOpacity>
+
+  <TouchableOpacity
+  style={styles.filterButton}
+  onPress={() => setShowFilters(prev => !prev)}
+>
+  <Ionicons name="filter" size={20} color="#3B82F6" />
+</TouchableOpacity>
+
+</View>
 
       {showFilters && (
         <View style={styles.filtersContainer}>
@@ -151,6 +192,31 @@ export default function SearchScreen() {
         </View>
       )}
 
+      {selectedCategory && subcategoriesMap[selectedCategory] && (
+  <View style={styles.filtersContainer}>
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filtersScroll}>
+      {subcategoriesMap[selectedCategory].map((subcategory) => (
+        <TouchableOpacity
+  key={subcategory}
+  style={[
+    styles.filterChip,
+    selectedSubcategory === subcategory && styles.filterChipActive,
+  ]}
+  onPress={() => setSelectedSubcategory(prev => prev === subcategory ? null : subcategory)}
+>
+  <Text style={[
+    styles.filterText,
+    selectedSubcategory === subcategory && styles.filterTextActive
+  ]}>
+    {subcategory}
+  </Text>
+</TouchableOpacity>
+      ))}
+    </ScrollView>
+  </View>
+)}
+
+
       <View style={styles.resultsHeader}>
         <Text style={styles.resultsCount}>{searchResults.length} items found</Text>
         <View style={styles.viewControls}>
@@ -171,7 +237,7 @@ export default function SearchScreen() {
 
       <ScrollView showsVerticalScrollIndicator={false} style={styles.resultsContainer}>
         <View style={viewMode === 'grid' ? styles.gridContainer : styles.listContainer}>
-          {searchResults.map((item) => (
+          {filteredResults.map((item) => (
             <TouchableOpacity 
               key={item.id} 
               style={viewMode === 'grid' ? styles.gridItem : styles.listItem}
@@ -236,6 +302,22 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FAFBFC',
+  },
+  searchBarRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    marginBottom: 16,
+    gap: 12,
+  },
+  searchButtonInline: {
+    backgroundColor: '#3B82F6',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 8,
   },
   header: {
     paddingHorizontal: 24,
@@ -517,6 +599,11 @@ const styles = StyleSheet.create({
   },
   bookButtonText: {
     fontSize: 14,
+    fontFamily: 'Inter-SemiBold',
+    color: '#FFFFFF',
+  },
+  searchButtonText: {
+    fontSize: 16,
     fontFamily: 'Inter-SemiBold',
     color: '#FFFFFF',
   },

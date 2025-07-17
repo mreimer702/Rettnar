@@ -1,19 +1,47 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, TextInput, Image, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { MapPin, Search, Filter, Star, Heart, Zap, TrendingUp, Clock, Shield } from 'lucide-react-native';
+import { MapPin, Search, Filter, Star, Heart, Zap, TrendingUp, Clock, Shield, Bell } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
+
+const router = useRouter();
 
 const { width } = Dimensions.get('window');
 
 const categories = [
-  { id: 1, name: 'Photography', icon: '📸', color: '#FF6B6B', gradient: ['#FF6B6B', '#FF8E8E'] as const },
-  { id: 2, name: 'Tools', icon: '🔧', color: '#4ECDC4', gradient: ['#4ECDC4', '#6EE7E0'] as const },
-  { id: 3, name: 'Sports', icon: '⚽', color: '#45B7D1', gradient: ['#45B7D1', '#6BC5D8'] as const },
-  { id: 4, name: 'Electronics', icon: '💻', color: '#96CEB4', gradient: ['#96CEB4', '#B0D8C4'] as const },
-  { id: 5, name: 'Events', icon: '🎉', color: '#FECA57', gradient: ['#FECA57', '#FFD76F'] as const },
-  { id: 6, name: 'Vehicles', icon: '🚗', color: '#FF9FF3', gradient: ['#FF9FF3', '#FFB3F6'] as const },
+
+  { id: 1, name: 'Equipment', icon: '🔧', color: '#4ECDC4', gradient: ['#4ECDC4', '#6EE7E0'] as const },
+  { id: 2, name: 'Venues', icon: '🎉', color: '#FECA57', gradient: ['#FECA57', '#FFD76F'] as const },
+  { id: 3, name: 'Vehicles', icon: '🚗', color: '#FF9FF3', gradient: ['#FF9FF3', '#FFB3F6'] as const },
 ];
+
+const subcategories = [
+  // Equipment
+  { id: 1, name: 'Photography', category: 'Equipment' },
+  { id: 2, name: 'Camping', category: 'Equipment' },
+  { id: 3, name: 'Sports', category: 'Equipment' },
+  { id: 4, name: 'Audio', category: 'Equipment' },
+  { id: 5, name: 'Tools', category: 'Equipment' },
+  { id: 6, name: 'More', category: 'Equipment' },
+
+  // Venues
+  { id: 7, name: 'Events', category: 'Venues' },
+  { id: 8, name: 'Ceremonies', category: 'Venues' },
+  { id: 9, name: 'Workspaces', category: 'Venues' },
+  { id: 10, name: 'Studios', category: 'Venues' },
+  { id: 11, name: 'Retail', category: 'Venues' },
+  { id: 12, name: 'More', category: 'Venues' },
+
+  // Vehicles
+  { id: 13, name: 'Personal', category: 'Vehicles' },
+  { id: 14, name: 'Luxury', category: 'Vehicles' },
+  { id: 15, name: 'Adventure', category: 'Vehicles' },
+  { id: 16, name: 'Special', category: 'Vehicles' },
+  { id: 17, name: 'Commercial', category: 'Vehicles' },
+  { id: 18, name: 'More', category: 'Vehicles' },
+];
+
 
 const featuredItems = [
   {
@@ -30,7 +58,7 @@ const featuredItems = [
     },
     distance: '0.8 km',
     instantBook: true,
-    category: 'Photography',
+    category: 'Equipment',
   },
   {
     id: '2',
@@ -46,25 +74,42 @@ const featuredItems = [
     },
     distance: '1.2 km',
     instantBook: true,
-    category: 'Electronics',
+    category: 'Equipment',
   },
   {
     id: '3',
-    title: 'Professional Drone 4K',
-    price: 65,
-    rating: 4.7,
-    reviews: 156,
-    image: 'https://images.pexels.com/photos/442587/pexels-photo-442587.jpeg?auto=compress&cs=tinysrgb&w=800',
+    title: 'Modern Loft Event Space',
+    price: 120,
+    rating: 4.9,
+    reviews: 202,
+    image: 'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=800',
     owner: {
-      name: 'Mike Johnson',
-      avatar: 'https://images.pexels.com/photos/1043474/pexels-photo-1043474.jpeg?auto=compress&cs=tinysrgb&w=100',
+      name: 'Emma Rodriguez',
+      avatar: 'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=100',
+      verified: true,
+    },
+    distance: '3.4 km',
+    instantBook: true,
+    category: 'Venues',
+  },
+  {
+    id: '4',
+    title: 'Tesla Model 3 - Long Range',
+    price: 95,
+    rating: 4.8,
+    reviews: 143,
+    image: 'https://images.pexels.com/photos/1402787/pexels-photo-1402787.jpeg?auto=compress&cs=tinysrgb&w=800',
+    owner: {
+      name: 'Daniel Wu',
+      avatar: 'https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=100',
       verified: false,
     },
-    distance: '2.1 km',
+    distance: '2.7 km',
     instantBook: false,
-    category: 'Photography',
+    category: 'Vehicles',
   },
 ];
+
 
 const trendingItems = [
   {
@@ -79,18 +124,21 @@ const trendingItems = [
     title: 'DJ Controller Set',
     price: 55,
     image: 'https://images.pexels.com/photos/1190297/pexels-photo-1190297.jpeg?auto=compress&cs=tinysrgb&w=400',
-    category: 'Events',
+    category: 'Equipment',
   },
   {
     id: '6',
-    title: 'Mountain Bike',
-    price: 35,
-    image: 'https://images.pexels.com/photos/100582/pexels-photo-100582.jpeg?auto=compress&cs=tinysrgb&w=400',
-    category: 'Sports',
+    title: 'Modern Studio Space',
+    price: 140,
+    image: 'https://images.pexels.com/photos/37347/office-sitting-room-executive-sitting.jpg?auto=compress&cs=tinysrgb&w=400',
+    category: 'Venues',
   },
 ];
 
-export default function ExploreScreen() {
+
+
+export default function HomeScreen() {
+
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
@@ -99,30 +147,48 @@ export default function ExploreScreen() {
       <ScrollView showsVerticalScrollIndicator={false} style={styles.scrollView}>
         {/* Header */}
         <View style={styles.header}>
-          <View style={styles.locationContainer}>
-            <MapPin size={18} color="#3B82F6" strokeWidth={2} />
-            <Text style={styles.locationText}>San Francisco, CA</Text>
-          </View>
-          <Text style={styles.greeting}>Discover amazing rentals</Text>
-          <Text style={styles.subGreeting}>Find anything you need, anywhere you are</Text>
-        </View>
+  {/* Top Row: Location + Bell */}
+  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+    <View style={styles.locationContainer}>
+      <MapPin size={18} color="#3B82F6" strokeWidth={2} />
+      <Text style={styles.locationText}>San Francisco, CA</Text>
+    </View>
+    <TouchableOpacity onPress={() => router.push('../features/notifications')} style={styles.bellButton}>
+      <Bell size={22} color="#3B82F6" strokeWidth={2} />
+    </TouchableOpacity>
+  </View>
 
-        {/* Search Bar */}
-        <View style={styles.searchSection}>
-          <View style={styles.searchContainer}>
-            <Search size={20} color="#64748B" strokeWidth={2} />
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search for items, tools, gear..."
-              placeholderTextColor="#94A3B8"
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-            />
-          </View>
-          <TouchableOpacity style={styles.filterButton}>
-            <Filter size={20} color="#3B82F6" strokeWidth={2} />
-          </TouchableOpacity>
-        </View>
+  <Text style={styles.greeting}>Discover amazing rentals</Text>
+  <Text style={styles.subGreeting}>Find anything you need, anywhere you are</Text>
+</View>
+
+
+{/* Search Bar */}
+<View style={styles.searchSection}>
+  {/* Search input */}
+  <View style={styles.searchContainer}>
+    <Search size={20} color="#64748B" strokeWidth={4} />
+    <TextInput
+      style={styles.searchInput}
+      placeholder="Search for items here..."
+      placeholderTextColor="#94A3B8"
+      value={searchQuery}
+      onChangeText={setSearchQuery}
+    />
+  </View>
+
+  {/* Search button */}
+  {/* Navigate to search results. Check in with Backend for search query */}
+  <TouchableOpacity
+    style={styles.searchButton}
+    onPress={() => router.push('/features/SearchResult' as any)} 
+    activeOpacity={0.8}
+  >
+    <Text style={styles.searchButtonText}>Go</Text>
+  </TouchableOpacity>
+</View>
+
+
 
         {/* Quick Stats */}
         <View style={styles.statsContainer}>
@@ -150,37 +216,63 @@ export default function ExploreScreen() {
         </View>
 
         {/* Categories */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Browse Categories</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoriesScroll}>
-            {categories.map((category) => (
-              <TouchableOpacity
-                key={category.id}
-                style={styles.categoryCard}
-                onPress={() => setSelectedCategory(category.name)}
-              >
-                <LinearGradient
-                  colors={[...category.gradient]}
-                  style={styles.categoryGradient}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                >
-                  <Text style={styles.categoryEmoji}>{category.icon}</Text>
-                </LinearGradient>
-                <Text style={styles.categoryName}>{category.name}</Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>
+       <View style={styles.section}>
+  <Text style={styles.sectionTitle}>Browse Categories</Text>
+
+  <View style={styles.categoriesRow}>
+    {categories.map((category) => (
+      <TouchableOpacity
+        key={category.id}
+        style={styles.categoryCard}
+        onPress={() => {
+          setSelectedCategory(prev =>
+            prev === category.name ? null : category.name
+          );
+        }}
+      >
+        <LinearGradient
+          colors={[...category.gradient]}
+          style={styles.categoryGradient}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+        >
+          <Text style={styles.categoryEmoji}>{category.icon}</Text>
+        </LinearGradient>
+        <Text style={styles.categoryName}>{category.name}</Text>
+      </TouchableOpacity>
+    ))}
+  </View>
+
+  {selectedCategory && (
+  <View style={styles.subcategoryContainer}>
+    <Text style={styles.subcategoryTitle}>{selectedCategory} Subcategories</Text>
+    <View style={styles.subcategoryList}>
+      {subcategories
+        .filter(sub => sub.category === selectedCategory)
+        .map(sub => (
+          <TouchableOpacity
+            key={sub.id}
+            style={styles.subcategoryItem}
+            onPress={() => {
+              // Convert category and subcategory to route path
+              const path = `../features/${selectedCategory.toLowerCase()}/${sub.name}`;
+              router.push(path as any);
+            }}
+          >
+            <Text style={styles.subcategoryText}>{sub.name}</Text>
+          </TouchableOpacity>
+        ))}
+    </View>
+  </View>
+)}
+
+</View>
+
 
         {/* Featured Items */}
         <View style={styles.section}>
-          <View style={styles.sectionHeader}>
+          <View>
             <Text style={styles.sectionTitle}>Featured Near You</Text>
-            <TouchableOpacity style={styles.instantBookBadge}>
-              <Zap size={12} color="#F59E0B" fill="#F59E0B" strokeWidth={0} />
-              <Text style={styles.instantBookText}>Instant Book</Text>
-            </TouchableOpacity>
           </View>
           
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.itemsScroll}>
@@ -191,11 +283,6 @@ export default function ExploreScreen() {
                   <TouchableOpacity style={styles.favoriteButton}>
                     <Heart size={14} color="#64748B" strokeWidth={2} />
                   </TouchableOpacity>
-                  {item.instantBook && (
-                    <View style={styles.instantBookBadgeSmall}>
-                      <Zap size={8} color="#F59E0B" fill="#F59E0B" strokeWidth={0} />
-                    </View>
-                  )}
                 </View>
                 
                 <View style={styles.cardContent}>
@@ -257,7 +344,8 @@ export default function ExploreScreen() {
           >
             <Text style={styles.ctaTitle}>Start Earning Today</Text>
             <Text style={styles.ctaSubtitle}>List your items and earn money when you're not using them</Text>
-            <TouchableOpacity style={styles.ctaButton}>
+            <TouchableOpacity style={styles.ctaButton}
+            onPress = {() => router.push('/(tabs)/list')}>
               <Text style={styles.ctaButtonText}>List Your First Item</Text>
             </TouchableOpacity>
           </LinearGradient>
@@ -291,6 +379,13 @@ const styles = StyleSheet.create({
     color: '#3B82F6',
     marginLeft: 6,
   },
+  
+  bellButton: {
+  padding: 8,
+  borderRadius: 999,
+  backgroundColor: '#E0F2FE',
+},
+
   greeting: {
     fontSize: 28,
     fontFamily: 'Inter-Bold',
@@ -331,20 +426,23 @@ const styles = StyleSheet.create({
     color: '#1E293B',
     marginLeft: 12,
   },
-  filterButton: {
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 16,
+  searchButton: {
+    backgroundColor: '#3B82F6',
+    paddingHorizontal: 20,
     paddingVertical: 14,
     borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.08,
     shadowRadius: 8,
     elevation: 2,
+  },
+  searchButtonText: {
+    fontSize: 16,
+    fontFamily: 'Inter-SemiBold',
+    color: '#FFFFFF',
   },
   statsContainer: {
     flexDirection: 'row',
@@ -395,6 +493,7 @@ const styles = StyleSheet.create({
     color: '#1E293B',
     paddingHorizontal: 24,
     marginBottom: 16,
+    textAlign: 'center'
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -416,9 +515,13 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-SemiBold',
     color: '#D97706',
     marginLeft: 4,
+    textAlign: 'center',
   },
-  categoriesScroll: {
-    paddingLeft: 24,
+  categoriesRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+    paddingHorizontal: 24,
   },
   categoryCard: {
     alignItems: 'center',
@@ -641,5 +744,41 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Inter-SemiBold',
     color: '#3B82F6',
+  },
+  subcategoryContainer: {
+    backgroundColor: '#F1F5F9',
+    borderRadius: 16,
+    marginHorizontal: 24,
+    marginTop: 12,
+    padding: 16,
+  },
+  subcategoryTitle: {
+    fontSize: 16,
+    fontFamily: 'Inter-Bold',
+    color: '#1E293B',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  subcategoryList: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    justifyContent: 'center',
+  },
+  subcategoryItem: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    marginRight: 8,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  subcategoryText: {
+    fontSize: 13,
+    fontFamily: 'Inter-Medium',
+    color: '#3B82F6',
+    textAlign: 'center',
   },
 });
