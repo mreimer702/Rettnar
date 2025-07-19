@@ -17,6 +17,15 @@ export default function LoginScreen() {
   const { t } = useTranslation();
 
   const handleLogin = async () => {
+
+    if (!email || !password) {
+      Alert.alert('Error', 'Please enter both email and password');
+      return;
+    }
+    if (!/\S+@\S+\.\S+/.test(email)) {
+      Alert.alert('Error', 'Please enter a valid email address');
+      return;
+    }
     try {
       setLoading(true);
       const response = await api.auth.login(email, password) as { token: string; user: { firstName: string } };
@@ -34,7 +43,12 @@ export default function LoginScreen() {
       router.replace('../(tabs)');  
     } catch (error) {
       console.error('Login error:', error);
-      Alert.alert('Error', 'Login failed');
+      if (error instanceof Error && 'response' in error) {
+        const serverError = (error as any).response?.data?.error || 'Login failed';
+        Alert.alert('Error', serverError);
+      } else {
+        Alert.alert('Error', 'An unexpected error occurred');
+      }
     } finally {
       setLoading(false);
     }

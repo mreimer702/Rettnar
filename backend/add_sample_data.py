@@ -7,6 +7,7 @@ from app import create_app
 from app.models import db, User, Role, Category, Subcategory, Location, Listing, Amenity
 from werkzeug.security import generate_password_hash
 from datetime import datetime
+from sqlalchemy import select
 
 def add_sample_data():
     """Add sample data to the database"""
@@ -162,5 +163,56 @@ def add_sample_data():
         print("   - test@example.com / test123 (User)")
         print("   - john.doe@example.com / password123 (User)")
 
+def add_or_update_user(first_name, last_name, email, password_hash, phone, location_id):
+    existing_user = db.session.execute(
+        select(User).where(User.email == email)
+    ).scalars().first()
+
+    if existing_user:
+        print(f"⚠️ User with email {email} already exists. Updating...")
+        existing_user.first_name = first_name
+        existing_user.last_name = last_name
+        existing_user.password_hash = password_hash
+        existing_user.phone = phone
+        existing_user.location_id = location_id
+    else:
+        print(f"✅ Adding new user with email {email}.")
+        new_user = User(
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            password_hash=password_hash,
+            phone=phone,
+            location_id=location_id,
+            is_active=True
+        )
+        db.session.add(new_user)
+
+    db.session.commit()
+
+def add_sample_user(first_name, last_name, email, password_hash, phone, location_id):
+    # Check if the user already exists
+    existing_user = db.session.execute(
+        select(User).where(User.email == email)
+    ).scalars().first()
+
+    if existing_user:
+        print(f"⚠️ User with email {email} already exists. Skipping...")
+        return
+
+    # Add the new user
+    new_user = User(
+        first_name=first_name,
+        last_name=last_name,
+        email=email,
+        password_hash=password_hash,
+        phone=phone,
+        location_id=location_id,
+        is_active=True
+    )
+    db.session.add(new_user)
+    db.session.commit()
+    print(f"✅ User {email} added successfully.")
+
 if __name__ == "__main__":
-    add_sample_data() 
+    add_sample_data()

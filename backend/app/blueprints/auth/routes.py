@@ -47,7 +47,7 @@ def logout_user():
     Logout user (JWT tokens are stateless, so this is handled client-side)
     This endpoint exists for consistency but doesn't need to do server-side token invalidation
     """
-    return jsonify({"message": "Logout successful"}), 200
+    return jsonify({"success": True, "message": "Logout successful"}), 200
 
 @auth_bp.route("/forgot-password", methods=["POST"])
 @limiter.limit('5 per minute')

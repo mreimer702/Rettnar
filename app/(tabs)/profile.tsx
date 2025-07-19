@@ -8,7 +8,8 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { TokenManager } from '../../services/TokenManager'; 
+import { TokenManager } from '../../services/TokenManager';
+import { api } from '../../services/api'; 
 
 const router = useRouter();
 
@@ -98,21 +99,31 @@ function handlePress(
 
 const handleLogout = async () => {
   try {
-    await TokenManager.removeToken();
+    const response = await api.auth.logout() as { success: boolean; message?: string };
 
-    const storedToken = await AsyncStorage.getItem('auth_token');
-    console.log('Token after logout:', storedToken); 
-    if (storedToken) {
-      throw new Error('Failed to remove token');
+    if (response.success) {
+      await TokenManager.removeToken();
+
+      const storedToken = await TokenManager.getToken(); 
+      console.log('Token after logout:', storedToken);
+
+      if (storedToken !== null) {
+        console.warn('Warning: Token still exists after logout');
+        await AsyncStorage.removeItem('auth_token');
+      }
+
+      router.push('/(auth)');
+      Alert.alert('Logged Out', response.message || 'You have been successfully logged out.');
+    } else {
+      Alert.alert('Error', response.message || 'Logout failed');
     }
-    // Navigate to the login screen
-    router.push('/(auth)');
-    Alert.alert('Logged Out', 'You have been successfully logged out.');
   } catch (error) {
     console.error('Logout error:', error);
-    Alert.alert('Error', 'Failed to log out.');
+    Alert.alert('Error', error instanceof Error ? error.message : 'Failed to log out.');
   }
 };
+
+
 
 
   return (
